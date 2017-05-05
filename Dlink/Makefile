@@ -1,7 +1,7 @@
 CXX = clang++
 CXXFLAGS = -std=c++14 -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS
 TARGET = Dlink.out
-OBJECTS = main.o
+OBJECTS = main.o Dlink.o
 
 all : $(TARGET)
 
