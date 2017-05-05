@@ -132,10 +132,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Dlink.cc" />
+    <ClCompile Include="Lexer.cc" />
     <ClCompile Include="main.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dlink\Dlink.hh" />
+    <ClInclude Include="Dlink\Lexer.hh" />
     <ClInclude Include="Dlink\Token.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
