@@ -12,6 +12,9 @@
     <ClCompile Include="main.cc">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Dlink.cc">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dlink\Dlink.hh">

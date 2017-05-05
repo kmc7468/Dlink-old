@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dlink.cc" />
     <ClCompile Include="main.cc" />
   </ItemGroup>
   <ItemGroup>
