@@ -21,5 +21,6 @@ namespace Dlink
 
 	private:
 		static bool parse_command_line_2(int argc, char* argv[]);
+		static bool parse_command_line_3(int argc, char* argv[]);
 	};
 }
