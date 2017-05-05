@@ -265,3 +265,6 @@ __pycache__/
 
 # Linux(Unix) out(executable) file
 *.out
+
+# Linux(Unix) ctags fiile
+tags
