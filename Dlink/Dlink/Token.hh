@@ -6,13 +6,13 @@ namespace Dlink
 {
 	enum class TokenType
 	{
-		none,			//special
+		none,				//special
 		eof,
 		error,
 
 		identifier,
 
-		dec_integer,	//literal
+		dec_integer,		//literal 
 		bin_integer,
 		oct_integer,
 		hex_integer,
@@ -72,7 +72,6 @@ namespace Dlink
 
 		_if,
 		_else,
-		_elif,
 		_switch,
 		_case,
 		_for,
@@ -84,7 +83,7 @@ namespace Dlink
 
 	struct Token
 	{
-		const std::string& data;
+		const std::string data;
 		const TokenType type;
 
 		const std::size_t line;

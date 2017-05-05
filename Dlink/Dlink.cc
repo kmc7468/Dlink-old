@@ -42,6 +42,7 @@ namespace Dlink
 			std::cout << "--help [option]   View all commands, or view detailed\n"
 						 "                  descriptions of commands.\n"
 						 "--version         View the version of Dlink.\n";
+			return false;
 		}
 		else
 		{
