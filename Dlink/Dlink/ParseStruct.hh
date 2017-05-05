@@ -162,6 +162,6 @@ namespace Dlink
 
 		IdentifierType(const Identifier& _id) : id(_id) {}
 		
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map);
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
 	};
 }
