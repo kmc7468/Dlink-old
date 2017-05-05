@@ -4,7 +4,7 @@
 
 namespace Dlink
 {
-	bool Dlink::parse_command_line(int argc, char* argv[]) noexcept
+	bool Dlink::parse_command_line(int argc, char* argv[])
 	{
 		if (argc == 1)
 		{
@@ -25,7 +25,7 @@ namespace Dlink
 		}
 	}
 
-	bool Dlink::parse_command_line_2(int argc, char* argv[]) noexcept
+	bool Dlink::parse_command_line_2(int argc, char* argv[])
 	{
 		if (argv[1] == "--version")
 		{

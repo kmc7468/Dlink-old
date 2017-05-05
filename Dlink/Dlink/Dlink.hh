@@ -17,9 +17,9 @@ namespace Dlink
 		bool operator!=(const Dlink& dlink) const noexcept = delete;
 
 	public:
-		static bool parse_command_line(int argc, char* argv[]) noexcept;
+		static bool parse_command_line(int argc, char* argv[]);
 
 	private:
-		static bool parse_command_line_2(int argc, char* argv[]) noexcept;
+		static bool parse_command_line_2(int argc, char* argv[]);
 	};
 }
