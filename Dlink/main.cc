@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 {
 	// LLVM test code
 	std::cout << "--- LLVM test begin ---\n";
-	
+
 	llvm::LLVMContext context;
 	auto module = std::make_unique<llvm::Module>("top", context);
 	llvm::IRBuilder<> builder(context);
@@ -20,10 +20,10 @@ int main(int argc, char* argv[])
 	std::vector<llvm::Type*> main_args; //Empty argument
 	llvm::FunctionType* main_type = llvm::FunctionType::get(builder.getInt32Ty(), main_args, false);
 	llvm::Function* main_func = llvm::Function::Create(main_type, llvm::GlobalValue::ExternalLinkage, "main", module.get());
-	
+
 	llvm::BasicBlock* main_block = llvm::BasicBlock::Create(context, "entry", main_func, nullptr);
 	builder.SetInsertPoint(main_block);
-	
+
 	builder.CreateRet(builder.getInt32(0));
 
 	module->dump();
@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 	std::cout << "--- LLVM test end ---\n\n";
 	std::cout << "--- OpenCL test begin ---\n";
 	// OpenCL test code(https://github.com/Dakkers/OpenCL-examples/blob/master/example00/main.cpp)
-	
+
 	std::vector<cl::Platform> all_platforms;
 	cl::Platform::get(&all_platforms);
 
@@ -53,8 +53,8 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	cl::Device default_device=all_devices[0];
-    std::cout<< "Using device: "<< default_device.getInfo<CL_DEVICE_NAME>() <<"\n";
+	cl::Device default_device=all_devices[1];
+	std::cout<< "Using device: "<< default_device.getInfo<CL_DEVICE_NAME>() <<"\n";
 
 	std::cout << "--- OpenCL test end ---\n";
 	return 0;
