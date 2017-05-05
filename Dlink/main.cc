@@ -6,7 +6,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/IRBuilder.h"
 
-#include "CL/cl2.hpp"
+#include "CL/cl.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	cl::Device default_device=all_devices[1];
+	cl::Device default_device=all_devices[0];
     std::cout<< "Using device: "<< default_device.getInfo<CL_DEVICE_NAME>() <<"\n";
 
 	std::cout << "--- OpenCL test end ---\n";
