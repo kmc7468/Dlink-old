@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <string>
 
 namespace Dlink
@@ -95,4 +96,6 @@ namespace Dlink
 			: data(_data), type(_type), line(_line)
 		{}
 	};
+
+	extern std::map<TokenType, std::string> tokentype_map;
 }

@@ -136,6 +136,7 @@
     <ClCompile Include="main.cc" />
     <ClCompile Include="Parse.cc" />
     <ClCompile Include="ParseStruct.cc" />
+    <ClCompile Include="Token.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dlink\Dlink.hh" />
