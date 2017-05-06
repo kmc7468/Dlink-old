@@ -81,8 +81,15 @@ namespace Dlink
 			sym_map[argument.getName()] = &argument;
 		}
 
-		body->code_gen();
-		return function;
+		if(llvm::ReturnInst* ret_inst = llvm::dyn_cast<llvm::ReturnInst>(body->code_gen()))
+		{
+			return function;
+		}
+		else
+		{
+			builder.CreateRet(llvm::Constant::getNullValue(builder.getCurrentFunctionReturnType()));
+			return function;
+		}
 	}
 
 	llvm::Value* Return::code_gen()
@@ -94,19 +101,33 @@ namespace Dlink
 	{
 		llvm::Function* parent_func = builder.GetInsertBlock()->getParent();
 
-		llvm::BasicBlock* if_block = llvm::BasicBlock::Create(context, "if", parent_func);
-		llvm::BasicBlock* then_block = llvm::BasicBlock::Create(context, "then", parent_func);
-		llvm::BasicBlock* endif_block = llvm::BasicBlock::Create(context, "endif", parent_func);
+		llvm::BasicBlock* if_block;   		
+		llvm::BasicBlock* then_block; 		
+		llvm::BasicBlock* else_block; 
+		llvm::BasicBlock* endif_block;
+
+		if(false_body != nullptr)
+		{
+			if_block = llvm::BasicBlock::Create(context, "if", parent_func);
+			then_block = llvm::BasicBlock::Create(context, "then", parent_func);
+			else_block = llvm::BasicBlock::Create(context, "else", parent_func);
+			endif_block = llvm::BasicBlock::Create(context, "endif", parent_func);
+		}
+		else
+		{
+			if_block = llvm::BasicBlock::Create(context, "if", parent_func);
+			then_block = llvm::BasicBlock::Create(context, "then", parent_func);
+			endif_block = llvm::BasicBlock::Create(context, "endif", parent_func);
+		}
 
 		builder.CreateBr(if_block);
 		builder.SetInsertPoint(if_block);
 
 		llvm::Value* cond_value = cond_expr->code_gen();
-		llvm::Value* cond_cmp = builder.CreateICmpEQ(cond_value, llvm::ConstantInt::get(cond_value->getType(), 1, false), "branch");
+		llvm::Value* cond_cmp = builder.CreateICmpEQ(cond_value, llvm::ConstantInt::get(cond_value->getType(), 1, true), "branch");
 		
 		if(false_body != nullptr)
 		{
-			llvm::BasicBlock* else_block = llvm::BasicBlock::Create(context, "else", parent_func);
 			
 			builder.CreateCondBr(cond_cmp, then_block, else_block);
 			builder.SetInsertPoint(then_block);
@@ -239,6 +260,8 @@ namespace Dlink
 			return builder.CreateMul(lhs_value, rhs_value);
 		case TokenType::divide:
 			return builder.CreateSDiv(lhs_value, rhs_value);
+		case TokenType::modulo:
+			return builder.CreateSRem(lhs_value, rhs_value);
 		default:
 			code_gen_errors.push_back(Error("Undefined binary operator", line));
 			return builder.getFalse();

@@ -24,21 +24,22 @@ int main(int argc, char* argv[])
 	*/
 	
 	std::string code = R"(
-		int f(int n, int n2)
+		int is_even(int n)
 		{
-			return n * n2;
+			if(n % 2 == 0) return 1;
+			else return 0;
 		}
 
 		int main()
 		{
-			int value = f(3, 7);
-
-			if(value == 42) puts("3 * 7 equals 42");
-			else if(value == 21)
+			if(is_even(10))
 			{
-				puts("3 * 7 equals 21");
+				puts("10 is even number");
 			}
-
+			else
+			{
+				puts("10 is odd number");
+			}
 			return 0;
 		}
 	)";
