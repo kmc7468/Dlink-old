@@ -288,39 +288,77 @@ namespace Dlink
 					{
 						i++;
 						
-						if(begin + i != end && begin[i].type == TokenType::lbrace)
+						if(begin + i != end /* && begin[i].type == TokenType::lbrace */)
 						{
-							i++;
+							bool no_brace = false;
+							if(begin[i].type == TokenType::lbrace) 
+							{
+								i++;
+							}
+							else
+							{
+								no_brace = true;
+							}
 							
 							if(begin + i != end)
 							{
 								std::shared_ptr<Statement> true_body;
-								t = P_block(begin + i, end, true_body, e_list);
+								
+								if(!no_brace)
+								{
+									t = P_block(begin + i, end, true_body, e_list);
+								}
+								else
+								{
+									t = P_func_decl(begin + i, end, true_body, e_list);
+								}
 
 								i += t;
 								
-								if(begin + i != end && begin[i].type == TokenType::rbrace)
+								if(begin + i != end && (no_brace || begin[i].type == TokenType::rbrace))
 								{
-									i++;
+									if(!no_brace)
+									{
+										i++;
+									}
 									
 									if(begin + i != end && begin[i].type == TokenType::_else)
 									{
 										i++;
 										
-										if(begin + i != end && begin[i].type == TokenType::lbrace)
+										if(begin + i != end /* && begin[i].type == TokenType::lbrace */)
 										{
-											i++;
+											bool no_brace2 = false;
+											if(begin[i].type == TokenType::lbrace) 
+											{
+												i++;
+											}
+											else
+											{
+												no_brace2 = true;
+											}
 
 											if(begin + i != end)
 											{ 
 												std::shared_ptr<Statement> false_body;
-												t = P_block(begin + i, end, false_body, e_list);
+												
+												if(!no_brace2)
+												{
+													t = P_block(begin + i, end, false_body, e_list);
+												}
+												else
+												{
+													t = P_func_decl(begin + i, end, false_body, e_list);
+												}
 
 												i += t;
 												
-												if(begin + i != end && begin[i].type == TokenType::rbrace)
+												if(begin + i != end && (no_brace2 || begin[i].type == TokenType::rbrace))
 												{
-													i++;
+													if(!no_brace2)
+													{
+														i++;
+													}
 
 													out = std::make_shared<IfElse>(cond_expr, true_body, false_body);
 													return i;
