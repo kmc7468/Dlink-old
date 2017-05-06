@@ -79,6 +79,7 @@ namespace Dlink
 		_break,
 		_continue,
 		_return,
+		_auto,
 	};
 
 	struct Token
@@ -88,6 +89,8 @@ namespace Dlink
 
 		const std::size_t line;
 
-		Token(const std::string& _data, TokenType _type, std::size_t _line) : data(_data), type(_type), line(_line) {}
+		Token(const std::string& _data, TokenType _type, std::size_t _line)
+			: data(_data), type(_type), line(_line)
+		{}
 	};
 }

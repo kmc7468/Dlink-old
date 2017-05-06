@@ -18,15 +18,24 @@
     <ClCompile Include="Lexer.cc">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ParseStruct.cc">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Dlink\Dlink.hh">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Dlink\Token.hh">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Dlink\Lexer.hh">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Dlink\Error.hh">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Dlink\ParseStruct.hh">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Dlink\Dlink.hh">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
