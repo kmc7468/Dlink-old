@@ -30,8 +30,8 @@ int main(int argc, char* argv[])
 		}
 		int main()
 		{
-			int a = f(1 & 0, f(1, 2));
-			return a;
+			puts("Hello, World!");
+			return 0;
 		}
 	)";
 
@@ -68,6 +68,9 @@ int main(int argc, char* argv[])
 		std::clog << "Parsing succeed\n";
 		errors.clear();
 		std::clog << stmt->tree_gen(0, dl::tokentype_map) << std::endl;
+		
+		llvm::FunctionType *puts_type = llvm::FunctionType::get(dl::builder.getInt32Ty(), dl::builder.getInt8PtrTy(), false);
+		llvm::Constant* puts_func = dl::module->getOrInsertFunction("puts", puts_type); //DELME : This is temporary function to test "Hello, World!" example; delete this line and previous line when they are no longer needed
 
 		stmt->code_gen();
 		

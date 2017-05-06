@@ -111,7 +111,7 @@ namespace Dlink
 
 	llvm::Value* String::code_gen()
 	{
-		return llvm::ConstantDataArray::getString(context, data, true);
+		return builder.CreateGlobalStringPtr(data.c_str());
 	}
 
 	llvm::Value* Identifier::code_gen()
