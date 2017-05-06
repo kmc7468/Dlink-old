@@ -5,8 +5,13 @@
 
 namespace Dlink
 {
+	std::string Dlink::startup_path;
+	std::vector<std::string> Dlink::input_files;
+
 	bool Dlink::parse_command_line(int argc, char* argv[])
 	{
+		startup_path = argv[0];
+
 		switch (argc)
 		{
 		case 1:
@@ -22,7 +27,7 @@ namespace Dlink
 			return parse_command_line_3(argc, argv);
 		
 		default:
-			return false;
+			return parse_command_line_default(argc, argv);
 		}
 	}
 
@@ -66,8 +71,48 @@ namespace Dlink
 		}
 		else
 		{
-			std::cout << "Error: " << argv[1] << " is cannot have arguments.\n";
+			std::cout << "Error: " << argv[1] << " cannot have arguments.\n";
 			return false;
 		}
+	}
+	bool Dlink::parse_command_line_default(int argc, char* argv[])
+	{
+		for (int i = 1; i < argc; ++i)
+		{
+			std::string cmdline = argv[i];
+
+			if (cmdline == "--help" && i == 1)
+			{
+				std::cout << "Error: --help can only have a maximum of one argument.\n";
+				return false;
+			}
+			else if (cmdline == "--version" && i == 1)
+			{
+				std::cout << "Error: " << argv[1] << " cannot have arguments.\n";
+				return false;
+			}
+			else if (cmdline.front() == '-')
+			{
+				if (cmdline == "--help" || cmdline == "--version")
+				{
+					std::cout << "Error: Can not use " << cmdline << " here.\n";
+					return false;
+				}
+
+				// Compile Options
+				
+				else
+				{
+					std::cout << "Error: " << cmdline << " is unknown option.\n";
+					return false;
+				}
+			}
+			else
+			{
+				input_files.push_back(cmdline);
+			}
+		}
+
+		return true;
 	}
 }

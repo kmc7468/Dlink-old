@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CodeGen.cc" />
     <ClCompile Include="Dlink.cc" />
     <ClCompile Include="Lexer.cc" />
     <ClCompile Include="main.cc" />
@@ -139,6 +140,7 @@
     <ClCompile Include="Token.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dlink\CodeGen.hh" />
     <ClInclude Include="Dlink\Dlink.hh" />
     <ClInclude Include="Dlink\Error.hh" />
     <ClInclude Include="Dlink\Lexer.hh" />
