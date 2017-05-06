@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 
+#include "llvm/IR/Value.h"
+
 #include "Token.hh"
 
 //Parent nodes
@@ -18,6 +20,11 @@ namespace Dlink
 		{
 			return std::string(depth * 6, ' ') + "<Undefined Tree>";
 		};
+		
+		virtual llvm::Value* code_gen()
+		{
+			return nullptr;
+		}
 
 		virtual ~Node()
 		{};
@@ -37,6 +44,11 @@ namespace Dlink
 			return std::string(depth * 6, ' ') + "<Undefined Tree>";
 		};
 
+		virtual llvm::Type* get_type()
+		{
+			return nullptr;
+		}
+
 		virtual ~Type()
 		{};
 	};
@@ -52,6 +64,7 @@ namespace Dlink
 		Integer32(int32_t _data) : data(_data)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
 	};
 
 	struct Float : public Expression
@@ -61,6 +74,7 @@ namespace Dlink
 		Float(float _data) : data(_data)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
 	};
 
 	struct String : public Expression
@@ -70,6 +84,7 @@ namespace Dlink
 		String(std::string _data) : data(_data)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
 	};
 
 	struct Identifier : public Expression
@@ -79,6 +94,7 @@ namespace Dlink
 		Identifier(const Token& _id) : id(_id)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
 	};
 
 	struct UnaryOP : public Expression
@@ -89,6 +105,7 @@ namespace Dlink
 		UnaryOP(const Token& _op, std::shared_ptr<Expression> _rhs) : op(_op), rhs(_rhs)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
 	};
 
 	struct BinaryOP : public Expression
@@ -100,6 +117,7 @@ namespace Dlink
 			: lhs(_lhs), op(_op), rhs(_rhs)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
 	};
 
 	struct FuncCall : public Expression
@@ -110,6 +128,7 @@ namespace Dlink
 		FuncCall(const Identifier& _id, const std::vector<std::shared_ptr<Expression>>& _args) : id(_id), args(_args)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
 	};
 }
 
@@ -121,6 +140,7 @@ namespace Dlink
 		std::vector<std::shared_ptr<Statement>> statements;
 
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
 	};
 
 	struct VariableDeclaration : public Statement
@@ -135,6 +155,7 @@ namespace Dlink
 			: type(_type), id(_id), expression(_expression)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
 	};
 
 	struct FunctionDeclaration : public Statement
@@ -148,6 +169,7 @@ namespace Dlink
 			: ret_type(_ret_type), id(_id), arg_list(_arg_list), body(_body)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
 	};
 
 	struct Return : public Statement
@@ -157,6 +179,7 @@ namespace Dlink
 		Return(std::shared_ptr<Expression> _ret_expr) : ret_expr(_ret_expr)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
 	};
 
 	struct ExpressionStatement : public Statement
@@ -166,6 +189,7 @@ namespace Dlink
 		ExpressionStatement(std::shared_ptr<Expression> _expression) : expression(_expression)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
 	};
 }
 
@@ -180,5 +204,6 @@ namespace Dlink
 		{}
 
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Type* get_type() override;
 	};
 }

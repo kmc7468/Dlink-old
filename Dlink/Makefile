@@ -1,7 +1,7 @@
 CXX = clang++
-CXXFLAGS = -std=c++14 -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS
+CXXFLAGS = -std=c++14 -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -g
 TARGET = Dlink.out
-OBJECTS = main.o Dlink.o Lexer.o ParseStruct.o Parse.o
+OBJECTS = main.o Dlink.o Lexer.o ParseStruct.o Parse.o Token.o CodeGen.o
 
 all : $(TARGET)
 

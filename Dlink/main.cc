@@ -1,12 +1,16 @@
 #include <iostream>
 #include <memory>
 
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/FileSystem.h"
+
 #include "Dlink/Dlink.hh"
 #include "Dlink/Lexer.hh"
 #include "Dlink/Error.hh"
 #include "Dlink/ParseStruct.hh"
 #include "Dlink/Parse.hh"
 #include "Dlink/Token.hh"
+#include "Dlink/CodeGen.hh"
 
 namespace dl = Dlink;
 
@@ -20,10 +24,14 @@ int main(int argc, char* argv[])
 	*/
 	
 	std::string code = R"(
+		int f(int n, int n2)
+		{
+			return n+n2;
+		}
 		int main()
 		{
-			bool a = f(-(1 && 0), g() && a);
-			return (1 + 1) * 0;
+			int a = f(1 & 0, f(1, 2));
+			return a;
 		}
 	)";
 
@@ -60,6 +68,24 @@ int main(int argc, char* argv[])
 		std::clog << "Parsing succeed\n";
 		errors.clear();
 		std::clog << stmt->tree_gen(0, dl::tokentype_map) << std::endl;
+
+		stmt->code_gen();
+		
+		if(!dl::code_gen_errors.empty())
+		{
+			for(dl::Error error : dl::code_gen_errors)
+			{
+				error.print(std::cerr);
+			}
+		}
+		else
+		{
+			dl::module->dump();
+
+			std::error_code err_code; 
+			llvm::raw_fd_ostream output("output.ll", err_code, llvm::sys::fs::F_None); 
+			dl::module->print(output, nullptr);
+		}
 	}
 	return 0;
 }

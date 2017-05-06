@@ -271,3 +271,6 @@ tags
 
 # Linux(Unix) gdb temp file
 .gdb.file
+
+# LLVM IR file
+*.ll
