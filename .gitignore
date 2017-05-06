@@ -268,3 +268,6 @@ __pycache__/
 
 # Linux(Unix) ctags fiile
 tags
+
+# Linux(Unix) gdb temp file
+.gdb.file

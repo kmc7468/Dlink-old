@@ -66,7 +66,6 @@ namespace Dlink
 		apostrophe,			// '
 		semicolon,			// ;
 		colon,				// :
-		scope,				// ::
 		exclamation,		// !
 		question,			// ?
 
@@ -79,12 +78,13 @@ namespace Dlink
 		_do,
 		_break,
 		_continue,
+		_return,
 	};
 
 	struct Token
 	{
 		const std::string data;
-		const TokenType type;
+		TokenType type;
 
 		const std::size_t line;
 

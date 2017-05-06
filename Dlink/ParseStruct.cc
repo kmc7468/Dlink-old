@@ -40,13 +40,16 @@ namespace Dlink
 	std::string FuncCall::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
 	{
 		std::string tree = std::string(depth*6, '-') + "FuncCall\n";
+		depth++;
 		tree +=	std::string(depth*6, '-') + "Name : " + id.id.data + "\n"; 
-		tree += "Args : \n";
+		tree += std::string(depth*6, '-') + "Args : \n";
 
 		for(auto&& arg : args)
 		{
 			tree += arg->tree_gen(depth+1, tokentype_map) + "\n";
 		}
+		
+		tree.pop_back();
 
 		return tree;
 	}	
@@ -74,7 +77,7 @@ namespace Dlink
 	{
 		std::string tree = std::string(depth*6, '-') + "Variable Decl Begin\n";
 		tree += std::string(depth*6, '-') + "Type : \n";
-		tree += type->tree_gen(depth+1, tokentype_map);
+		tree += type->tree_gen(depth+1, tokentype_map) + "\n";
 		tree += std::string(depth*6, '-') + "Name : " + id.id.data + "\n";
 
 		if(expression)

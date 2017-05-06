@@ -12,7 +12,7 @@ namespace Dlink
 {
 	struct Node
 	{
-		const std::size_t line = 0;
+		std::size_t line = 0;
 
 		virtual std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
 		{
@@ -27,7 +27,7 @@ namespace Dlink
 
 	struct Type
 	{
-		const std::size_t line = 0;
+		std::size_t line = 0;
 
 		virtual std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
 		{
@@ -107,7 +107,7 @@ namespace Dlink
 {
 	struct Block : public Statement
 	{
-		const std::vector<std::shared_ptr<Statement>> statements;
+		std::vector<std::shared_ptr<Statement>> statements;
 		
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
 	};
