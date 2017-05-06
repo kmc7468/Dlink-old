@@ -30,13 +30,13 @@ namespace Dlink
 				{
 					temp += str[i];
 					i++;
-				} while (std::isalpha(str[i]) || std::isdigit(str[i]) || str[i] == '_');				
+				} while (std::isalpha(str[i]) || std::isdigit(str[i]) || str[i] == '_');
 
 				i--;
 
 				bool is_keyword = (keyword_map_.find(temp) != keyword_map_.end());
-				
-				if(is_keyword)
+
+				if (is_keyword)
 				{
 					Token keyword_token(temp, keyword_map_[temp], line);
 					token_seq_.push_back(keyword_token);
@@ -103,9 +103,9 @@ namespace Dlink
 						{
 							temp += str[i];
 							i++;
-						} while (i < str.length() && (std::isdigit(str[i]) || 
-								(('a' <= str[i]) && (str[i] <= 'f')) || 
-								(('A' <= str[i]) && (str[i] <= 'F'))));
+						} while (i < str.length() && (std::isdigit(str[i]) ||
+							(('a' <= str[i]) && (str[i] <= 'f')) ||
+													  (('A' <= str[i]) && (str[i] <= 'F'))));
 						i--;
 
 						token_seq_.push_back(Token(temp, TokenType::hex_integer, line));
@@ -415,7 +415,7 @@ namespace Dlink
 
 	void Lexer::dump(std::map<TokenType, std::string> tokentype_map) const
 	{
-		for(const Token& token : token_seq_)
+		for (const Token& token : token_seq_)
 		{
 			std::cout << "Line " << token.line << " -> " << tokentype_map[token.type] << "(" << token.data << ")\n";
 		}
