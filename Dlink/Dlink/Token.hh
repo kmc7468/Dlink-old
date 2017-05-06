@@ -80,6 +80,8 @@ namespace Dlink
 		_continue,
 		_return,
 		_auto,
+		gpu,
+		cpu,
 	};
 
 	struct Token

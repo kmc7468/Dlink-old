@@ -14,6 +14,8 @@ namespace Dlink
 		keyword_map_["continue"] = TokenType::_continue;
 		keyword_map_["return"] = TokenType::_return;
 		keyword_map_["auto"] = TokenType::_auto;
+		keyword_map_["gpu"] = TokenType::gpu;
+		keyword_map_["cpu"] = TokenType::cpu;
 	}
 
 	void Lexer::lex(const std::string& str)
@@ -26,7 +28,8 @@ namespace Dlink
 
 			if (std::isalpha(ch))
 			{
-				std::string temp = ""; do
+				std::string temp = "";
+				do
 				{
 					temp += str[i];
 					i++;
