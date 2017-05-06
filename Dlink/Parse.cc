@@ -28,7 +28,7 @@ namespace Dlink
 	int P_func_decl(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list)
 	{
 		int i = 0, t;
-		
+
 		std::shared_ptr<Type> rettype_expr;
 		if ((t = P_type(begin + i, end, rettype_expr, e_list)) >= 0)
 		{
@@ -39,98 +39,98 @@ namespace Dlink
 				Identifier name(begin[i]);
 				i++;
 
-				if(begin + i != end && begin[i].type == TokenType::lparen)
+				if (begin + i != end && begin[i].type == TokenType::lparen)
 				{
 					i++;
-					
+
 					std::vector<VariableDeclaration> arg_list;
-					while(true)
+					while (true)
 					{
 						std::shared_ptr<Type> arg_type;
-						if(begin + i != end && (t = P_type(begin + i, end, arg_type, e_list)) >= 0)
+						if (begin + i != end && (t = P_type(begin + i, end, arg_type, e_list)) >= 0)
 						{
 							i += t;
 
-							if(begin + i != end && begin[i].type == TokenType::identifier)
+							if (begin + i != end && begin[i].type == TokenType::identifier)
 							{
 								Identifier name(begin[i]);
 								i++;
 
 								VariableDeclaration arg(arg_type, name);
 								arg_list.push_back(arg);
-									
-								if(begin + i != end && begin[i].type == TokenType::comma)
+
+								if (begin + i != end && begin[i].type == TokenType::comma)
 								{
 									i++;
 									continue;
 								}
-								else if(begin + i != end && begin[i].type == TokenType::rparen)
+								else if (begin + i != end && begin[i].type == TokenType::rparen)
 								{
 									i++;
 									break;
 								}
 								else
 								{
-									e_list.push_back(Error("Expected ',' or ')' after argument definition", begin[i-1].line));
+									e_list.push_back(Error("Expected ',' or ')' after argument definition", begin[i - 1].line));
 									return -1;
 								}
-							}	
+							}
 							else
 							{
-								e_list.push_back(Error("Expected identifier after type", begin[i-t].line));
-								return -1;	
+								e_list.push_back(Error("Expected identifier after type", begin[i - t].line));
+								return -1;
 							}
 						}
-						else if(begin + i != end && begin[i].type == TokenType::rparen)
+						else if (begin + i != end && begin[i].type == TokenType::rparen)
 						{
 							i++;
 							break;
 						}
 						else
 						{
-							e_list.push_back(Error("Expected type", begin[i-1].line));
-							return -1;	
+							e_list.push_back(Error("Expected type", begin[i - 1].line));
+							return -1;
 						}
 					}
 
-					if(begin + i != end && begin[i].type == TokenType::lbrace)
+					if (begin + i != end && begin[i].type == TokenType::lbrace)
 					{
 						i++;
-						
+
 						std::shared_ptr<Statement> body;
-						if(begin + i != end)
+						if (begin + i != end)
 						{
 							t = P_block(begin + i, end, body, e_list);
 							i += t;
-							
-							if(begin + i != end && begin[i].type == TokenType::rbrace)
+
+							if (begin + i != end && begin[i].type == TokenType::rbrace)
 							{
 								i++;
 								out = std::make_shared<FunctionDeclaration>(rettype_expr, name, arg_list, body);
-								out->line = begin[i-1].line;
+								out->line = begin[i - 1].line;
 								return i;
 							}
 							else
 							{
-								e_list.push_back(Error("Expected '}'", begin[i-t].line));
+								e_list.push_back(Error("Expected '}'", begin[i - t].line));
 								return -1;
 							}
 						}
 						else
-						{	
-							e_list.push_back(Error("Expected block after '{'", begin[i-1].line));
+						{
+							e_list.push_back(Error("Expected block after '{'", begin[i - 1].line));
 							return -1;
 						}
-						
+
 					}
 					else
-					{	
-						e_list.push_back(Error("Expected '{' after argument signature", begin[i-1].line));
+					{
+						e_list.push_back(Error("Expected '{' after argument signature", begin[i - 1].line));
 						return -1;
 					}
 				}
 				else
-				{	
+				{
 					std::shared_ptr<Statement> sub_expr_stmt;
 					t = P_var_decl(begin, end, sub_expr_stmt, e_list);
 					out = sub_expr_stmt;
@@ -154,7 +154,7 @@ namespace Dlink
 		}
 	}
 	int P_var_decl(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list)
-	{	
+	{
 		int i = 0, t;
 
 		std::shared_ptr<Type> type_expr;
@@ -167,14 +167,14 @@ namespace Dlink
 				Identifier name(begin[i]);
 				i++;
 
-				if(begin + i != end && begin[i].type == TokenType::semicolon)
+				if (begin + i != end && begin[i].type == TokenType::semicolon)
 				{
 					i++;
 					out = std::make_shared<VariableDeclaration>(type_expr, name);
-					out->line = begin[i-1].line;
+					out->line = begin[i - 1].line;
 					return i;
 				}
-				else if(begin + i != end && begin[i].type == TokenType::equal)
+				else if (begin + i != end && begin[i].type == TokenType::equal)
 				{
 					i++;
 
@@ -183,31 +183,31 @@ namespace Dlink
 					{
 						i += t;
 
-						if(begin + i != end && begin[i].type == TokenType::semicolon)
+						if (begin + i != end && begin[i].type == TokenType::semicolon)
 						{
 							i++;
 							out = std::make_shared<VariableDeclaration>(type_expr, name, init_expr);
-							out->line = begin[i-1].line;
+							out->line = begin[i - 1].line;
 							return i;
 						}
 						else
 						{
-							e_list.push_back(Error("Expected ';' after expression", begin[i-t].line));
+							e_list.push_back(Error("Expected ';' after expression", begin[i - t].line));
 							return -1;
 						}
-					}	
+					}
 					else
 					{
-						e_list.push_back(Error("Expected expression after '='", begin[i-1].line));
+						e_list.push_back(Error("Expected expression after '='", begin[i - 1].line));
 						return -1;
 					}
 				}
 				else
 				{
-					e_list.push_back(Error("Expected semicolon or '=' after identifier", begin[i-1].line));
+					e_list.push_back(Error("Expected semicolon or '=' after identifier", begin[i - 1].line));
 					return -1;
 				}
-			}	
+			}
 			else
 			{
 				std::shared_ptr<Statement> sub_expr_stmt;
@@ -227,18 +227,18 @@ namespace Dlink
 
 	int P_return(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list)
 	{
-		int i=0, t;
+		int i = 0, t;
 
-		if(begin[i].type == TokenType::_return)
+		if (begin[i].type == TokenType::_return)
 		{
 			i++;
 
 			std::shared_ptr<Expression> sub_expr;
-			if(begin + i != end && (t = P_expr(begin + i, end, sub_expr, e_list)) >= 0)
+			if (begin + i != end && (t = P_expr(begin + i, end, sub_expr, e_list)) >= 0)
 			{
 				i += t;
 
-				if(begin + i != end && begin[i].type == TokenType::semicolon)
+				if (begin + i != end && begin[i].type == TokenType::semicolon)
 				{
 					i++;
 					out = std::make_shared<Return>(sub_expr);
@@ -247,13 +247,13 @@ namespace Dlink
 				}
 				else
 				{
-					e_list.push_back(Error("Expected ';' after expression", begin[i-t].line));
+					e_list.push_back(Error("Expected ';' after expression", begin[i - t].line));
 					return -1;
 				}
 			}
 			else
 			{
-				e_list.push_back(Error("Expected expression after 'return'", begin[i-t].line));
+				e_list.push_back(Error("Expected expression after 'return'", begin[i - t].line));
 				return -1;
 			}
 		}
@@ -284,7 +284,7 @@ namespace Dlink
 			}
 			else
 			{
-				e_list.push_back(Error("Expected ';' after expression", begin[i-t].line));
+				e_list.push_back(Error("Expected ';' after expression", begin[i - t].line));
 				return -1;
 			}
 		}
@@ -330,8 +330,8 @@ namespace Dlink
 			if ((t = P_logical_and_expr(begin + i, end, sub_expr2, e_list)) >= 0)
 			{
 				i += t;
-				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i-t-1], sub_expr2);
-				sub_expr->line = begin[i-t].line;
+				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
+				sub_expr->line = begin[i - t].line;
 			}
 			else
 			{
@@ -371,8 +371,8 @@ namespace Dlink
 			if ((t = P_bitwise_or_expr(begin + i, end, sub_expr2, e_list)) >= 0)
 			{
 				i += t;
-				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i-t-1], sub_expr2);
-				sub_expr->line = begin[i-t].line;
+				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
+				sub_expr->line = begin[i - t].line;
 			}
 			else
 			{
@@ -412,8 +412,8 @@ namespace Dlink
 			if ((t = P_bitwise_xor_expr(begin + i, end, sub_expr2, e_list)) >= 0)
 			{
 				i += t;
-				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i-t-1], sub_expr2);
-				sub_expr->line = begin[i-t].line;
+				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
+				sub_expr->line = begin[i - t].line;
 			}
 			else
 			{
@@ -453,8 +453,8 @@ namespace Dlink
 			if ((t = P_bitwise_and_expr(begin + i, end, sub_expr2, e_list)) >= 0)
 			{
 				i += t;
-				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i-t-1], sub_expr2);
-				sub_expr->line = begin[i-t].line;
+				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
+				sub_expr->line = begin[i - t].line;
 			}
 			else
 			{
@@ -494,8 +494,8 @@ namespace Dlink
 			if ((t = P_eq_noteq_expr(begin + i, end, sub_expr2, e_list)) >= 0)
 			{
 				i += t;
-				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i-t-1], sub_expr2);
-				sub_expr->line = begin[i-t].line;
+				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
+				sub_expr->line = begin[i - t].line;
 			}
 			else
 			{
@@ -529,15 +529,15 @@ namespace Dlink
 
 
 		while (begin + i != end && (begin[i].type == TokenType::comp_equal
-								 || begin[i].type == TokenType::comp_noteq))
+									|| begin[i].type == TokenType::comp_noteq))
 		{
 			i++;
 			std::shared_ptr<Expression> sub_expr2;
 			if ((t = P_lessgreat_expr(begin + i, end, sub_expr2, e_list)) >= 0)
 			{
 				i += t;
-				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i-t-1], sub_expr2);
-				sub_expr->line = begin[i-t].line;
+				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
+				sub_expr->line = begin[i - t].line;
 			}
 			else
 			{
@@ -571,17 +571,17 @@ namespace Dlink
 
 
 		while (begin + i != end && (begin[i].type == TokenType::comp_greater
-								 || begin[i].type == TokenType::comp_eqgreater
-								 || begin[i].type == TokenType::comp_less
-								 || begin[i].type == TokenType::comp_eqless))
+									|| begin[i].type == TokenType::comp_eqgreater
+									|| begin[i].type == TokenType::comp_less
+									|| begin[i].type == TokenType::comp_eqless))
 		{
 			i++;
 			std::shared_ptr<Expression> sub_expr2;
 			if ((t = P_bit_lrshift_expr(begin + i, end, sub_expr2, e_list)) >= 0)
 			{
 				i += t;
-				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i-t-1], sub_expr2);
-				sub_expr->line = begin[i-t].line;
+				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
+				sub_expr->line = begin[i - t].line;
 			}
 			else
 			{
@@ -622,7 +622,7 @@ namespace Dlink
 			{
 				i += t;
 				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
-				sub_expr->line = begin[i-t].line;
+				sub_expr->line = begin[i - t].line;
 			}
 			else
 			{
@@ -662,8 +662,8 @@ namespace Dlink
 			if ((t = P_muldiv_expr(begin + i, end, sub_expr2, e_list)) >= 0)
 			{
 				i += t;
-				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i-t-1], sub_expr2);
-				sub_expr->line = begin[i-t].line;
+				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
+				sub_expr->line = begin[i - t].line;
 			}
 			else
 			{
@@ -696,17 +696,17 @@ namespace Dlink
 		}
 
 
-		while (begin + i != end && (begin[i].type == TokenType::multiply 
-								 || begin[i].type == TokenType::divide
-								 || begin[i].type == TokenType::modulo))
+		while (begin + i != end && (begin[i].type == TokenType::multiply
+									|| begin[i].type == TokenType::divide
+									|| begin[i].type == TokenType::modulo))
 		{
 			i++;
 			std::shared_ptr<Expression> sub_expr2;
 			if ((t = P_not_expr(begin + i, end, sub_expr2, e_list)) >= 0)
 			{
 				i += t;
-				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i-t-1], sub_expr2);
-				sub_expr->line = begin[i-t].line;
+				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
+				sub_expr->line = begin[i - t].line;
 			}
 			else
 			{
@@ -729,7 +729,7 @@ namespace Dlink
 		int i = 0, t = 0;
 		std::shared_ptr<Expression> ret;
 
-		if (begin[i].type == TokenType::exclamation ||begin[i].type == TokenType::bit_not)
+		if (begin[i].type == TokenType::exclamation || begin[i].type == TokenType::bit_not)
 		{
 			i++;
 			std::shared_ptr<Expression> not_expr;
@@ -749,8 +749,8 @@ namespace Dlink
 				}
 				return -1;
 			}
-			ret = std::make_shared<UnaryOP>(begin[i-t-1], not_expr);
-			ret->line = begin[i-t].line;
+			ret = std::make_shared<UnaryOP>(begin[i - t - 1], not_expr);
+			ret->line = begin[i - t].line;
 		}
 		else
 		{
@@ -787,19 +787,19 @@ namespace Dlink
 			}
 			else
 			{
-				if (begin[i-t-1].type == TokenType::plus)
+				if (begin[i - t - 1].type == TokenType::plus)
 				{
-					e_list.push_back(Error("Expected expression after '+'", begin[i-1].line));
+					e_list.push_back(Error("Expected expression after '+'", begin[i - 1].line));
 				}
 				else
 				{
-					e_list.push_back(Error("Expected expression after '-'", begin[i-1].line));
+					e_list.push_back(Error("Expected expression after '-'", begin[i - 1].line));
 				}
 
 				return -1;
 			}
-			ret = std::make_shared<UnaryOP>(begin[i-t-1], sign);
-			ret->line = begin[i-t].line;
+			ret = std::make_shared<UnaryOP>(begin[i - t - 1], sign);
+			ret->line = begin[i - t].line;
 		}
 		else
 		{
@@ -827,53 +827,53 @@ namespace Dlink
 		std::shared_ptr<Expression> ret;
 		std::shared_ptr<Expression> sub_expr;
 
-		if(begin[i].type == TokenType::identifier)
+		if (begin[i].type == TokenType::identifier)
 		{
 			Identifier name(begin[i]);
 			i++;
 
-			if(begin[i].type == TokenType::lparen)
+			if (begin[i].type == TokenType::lparen)
 			{
 				i++;
-				
+
 				std::vector<std::shared_ptr<Expression>> args;
-				while(true)
+				while (true)
 				{
 					std::shared_ptr<Expression> arg;
 
-					if((t = P_expr(begin + i, end, arg, e_list)) > 0)
+					if ((t = P_expr(begin + i, end, arg, e_list)) > 0)
 					{
 						i += t;
 						args.push_back(arg);
 					}
-					
-					if(begin + i != end && begin[i].type == TokenType::comma)
+
+					if (begin + i != end && begin[i].type == TokenType::comma)
 					{
 						i++;
 						continue;
 					}
-					else if(begin + i != end && begin[i].type == TokenType::rparen)
+					else if (begin + i != end && begin[i].type == TokenType::rparen)
 					{
 						i++;
 						break;
 					}
 					else
 					{
-						e_list.push_back(Error("Expected ',' or ')' after expression", begin[i-t].line));
+						e_list.push_back(Error("Expected ',' or ')' after expression", begin[i - t].line));
 						return -1;
 					}
 				}
 
 				ret = std::make_shared<FuncCall>(name, args);
-				ret->line = begin[i-1].line;
+				ret->line = begin[i - 1].line;
 			}
-			else if((t = P_incdec_expr(begin + (--i), end, sub_expr, e_list)) >= 0)
+			else if ((t = P_incdec_expr(begin + (--i), end, sub_expr, e_list)) >= 0)
 			{
 				i += t;
 				ret = sub_expr;
 			}
 		}
-		else if((t = P_incdec_expr(begin + i, end, sub_expr, e_list)) >= 0)
+		else if ((t = P_incdec_expr(begin + i, end, sub_expr, e_list)) >= 0)
 		{
 			i += t;
 			ret = sub_expr;
@@ -914,12 +914,12 @@ namespace Dlink
 
 				return -1;
 			}
-			
+
 			Token op = begin[i - t - 1];
-			if(op.type == TokenType::increment) op.type = TokenType::pre_inc;
+			if (op.type == TokenType::increment) op.type = TokenType::pre_inc;
 			else op.type = TokenType::pre_dec;
 			ret = std::make_shared<UnaryOP>(op, sign);
-			ret->line = begin[i-t].line;
+			ret->line = begin[i - t].line;
 		}
 		else if ((t = P_paren_expr(begin + i, end, sign, e_list)) > 0)
 		{
@@ -934,12 +934,12 @@ namespace Dlink
 				out = sign;
 				return i;
 			}
-			
+
 			auto op = begin[i - 1];
-			if(op.type == TokenType::increment) op.type = TokenType::post_inc;
+			if (op.type == TokenType::increment) op.type = TokenType::post_inc;
 			else op.type = TokenType::post_dec;
 			ret = std::make_shared<UnaryOP>(op, sign);
-			ret->line = begin[i-1].line;
+			ret->line = begin[i - 1].line;
 		}
 		else
 		{
@@ -981,11 +981,11 @@ namespace Dlink
 			}
 			else
 			{
-				e_list.push_back(Error("Expected ')'", begin[i-1].line));
+				e_list.push_back(Error("Expected ')'", begin[i - 1].line));
 				return -1;
 			}
 
-			ret->line = begin[i-1].line;
+			ret->line = begin[i - 1].line;
 			out = ret;
 			return i;
 		}
@@ -1054,7 +1054,7 @@ namespace Dlink
 
 	int P_type_identifier(TokenIter begin, TokenIter end, std::shared_ptr<Type>& out, ErrorList& e_list)
 	{
-		if(begin[0].type == TokenType::identifier)
+		if (begin[0].type == TokenType::identifier)
 		{
 			out = std::make_shared<IdentifierType>(begin[0]);
 			out->line = begin[0].line;
