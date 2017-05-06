@@ -16,7 +16,7 @@ namespace Dlink
 
 		virtual std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
 		{
-			return std::string(depth * 6, '-') + "<Undefined Tree>";
+			return std::string(depth * 6, ' ') + "<Undefined Tree>";
 		};
 
 		virtual ~Node()
@@ -34,7 +34,7 @@ namespace Dlink
 
 		virtual std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
 		{
-			return std::string(depth * 6, '-') + "<Undefined Tree>";
+			return std::string(depth * 6, ' ') + "<Undefined Tree>";
 		};
 
 		virtual ~Type()
