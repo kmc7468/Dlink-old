@@ -78,6 +78,7 @@ namespace Dlink
 		_do,
 		_break,
 		_continue,
+		_auto,
 	};
 
 	struct Token

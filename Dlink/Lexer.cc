@@ -12,6 +12,7 @@ namespace Dlink
 		keyword_map_["do"] = TokenType::_do;
 		keyword_map_["break"] = TokenType::_break;
 		keyword_map_["continue"] = TokenType::_continue;
+		keyword_map_["auto"] = TokenType::_auto;
 	}
 
 	void Lexer::lex(const std::string& str)
@@ -383,11 +384,6 @@ namespace Dlink
 					if (str[i + 1] != ':') //then :
 					{
 						token_seq_.push_back(Token(":", TokenType::colon, line));
-					}
-					else //then ::
-					{
-						token_seq_.push_back(Token("::", TokenType::scope, line));
-						i++;
 					}
 					break;
 				case '!': //! or !=
