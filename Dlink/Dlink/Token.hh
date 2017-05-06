@@ -66,7 +66,6 @@ namespace Dlink
 		apostrophe,			// '
 		semicolon,			// ;
 		colon,				// :
-		scope,				// ::
 		exclamation,		// !
 		question,			// ?
 
