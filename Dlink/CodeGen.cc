@@ -28,6 +28,11 @@ namespace Dlink
 		return last_value;
 	}
 
+#ifdef alloca
+#define DLINK_MACRO_ALLOCA_PUSH alloca
+#undef alloca
+#endif
+
 	llvm::Value* VariableDeclaration::code_gen()
 	{
 		llvm::AllocaInst* alloca = builder.CreateAlloca(type->get_type(), nullptr, id.id.data);	
@@ -43,6 +48,11 @@ namespace Dlink
 		
 		return alloca;
 	}
+
+#ifdef DLINK_MACRO_ALLOCA_PUSH
+#define alloca DLINK_MACRO_ALLOCA_PUSH
+#undef DLINK_MACRO_ALLOCA_PUSH
+#endif
 
 	llvm::Value* FunctionDeclaration::code_gen()
 	{
