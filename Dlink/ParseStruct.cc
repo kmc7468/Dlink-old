@@ -97,13 +97,13 @@ namespace Dlink
 		tree += ret_type->tree_gen(depth + 1, tokentype_map) + "\n";
 		tree += std::string(depth * 6, ' ') + "Name : " + id.id.data + "\n";
 
-		tree += std::string(depth * 6, ' ') + "Arguments\n";
+		tree += std::string(depth * 6, ' ') + "Arguments : \n";
 		for (auto arg : arg_list)
 		{
 			tree += arg.tree_gen(depth + 1, tokentype_map) + "\n";
 		}
 
-		tree += std::string(depth * 6, ' ') + "Body\n";
+		tree += std::string(depth * 6, ' ') + "Body : \n";
 		tree += body->tree_gen(depth + 1, tokentype_map) + "\n";
 		tree += std::string(depth * 6, ' ') + "End Func Decl";
 		return tree;
@@ -111,8 +111,26 @@ namespace Dlink
 
 	std::string Return::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
 	{
-		std::string tree = std::string(depth * 6, ' ') + "Return\n";
+		std::string tree = std::string(depth * 6, ' ') + "Return : \n";
 		tree += ret_expr->tree_gen(depth + 1, tokentype_map);
+		return tree;
+	}
+
+	std::string IfElse::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	{
+		std::string tree = std::string(depth * 6, ' ') + "If\n";
+		tree += std::string(depth * 6, ' ') + "Condition : \n";
+		tree += cond_expr->tree_gen(depth + 1, tokentype_map) + "\n";
+		tree += std::string(depth * 6, ' ') + "Then : \n";
+		tree += true_body->tree_gen(depth + 1, tokentype_map) + "\n";
+
+		if(false_body)
+		{
+			tree += std::string(depth * 6, ' ') + "Else : \n";
+			tree += false_body->tree_gen(depth + 1, tokentype_map) + "\n";
+		}
+
+		tree += std::string(depth * 6, ' ') + "End If";
 		return tree;
 	}
 

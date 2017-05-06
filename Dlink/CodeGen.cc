@@ -90,6 +90,45 @@ namespace Dlink
 		return builder.CreateRet(ret_expr->code_gen());
 	}
 
+	llvm::Value* IfElse::code_gen()
+	{
+		llvm::Function* parent_func = builder.GetInsertBlock()->getParent();
+
+		llvm::BasicBlock* if_block = llvm::BasicBlock::Create(context, "if", parent_func);
+		llvm::BasicBlock* then_block = llvm::BasicBlock::Create(context, "then", parent_func);
+		llvm::BasicBlock* endif_block = llvm::BasicBlock::Create(context, "endif", parent_func);
+
+		builder.CreateBr(if_block);
+		builder.SetInsertPoint(if_block);
+
+		llvm::Value* cond_value = cond_expr->code_gen();
+		llvm::Value* cond_cmp = builder.CreateICmpEQ(cond_value, llvm::ConstantInt::get(cond_value->getType(), 1, false), "branch");
+		
+		if(false_body != nullptr)
+		{
+			llvm::BasicBlock* else_block = llvm::BasicBlock::Create(context, "else", parent_func);
+			
+			builder.CreateCondBr(cond_cmp, then_block, else_block);
+			builder.SetInsertPoint(then_block);
+			true_body->code_gen();
+			builder.CreateBr(endif_block);
+			builder.SetInsertPoint(else_block);
+			false_body->code_gen();
+			builder.CreateBr(endif_block);
+			builder.SetInsertPoint(endif_block);
+		}
+		else
+		{
+			builder.CreateCondBr(cond_cmp, then_block, endif_block);
+			builder.SetInsertPoint(then_block);
+			true_body->code_gen();
+			builder.CreateBr(endif_block);
+			builder.SetInsertPoint(endif_block);
+		}
+		
+		return cond_cmp;
+	}
+
 	llvm::Value* ExpressionStatement::code_gen()
 	{
 		return expression->code_gen();

@@ -182,6 +182,18 @@ namespace Dlink
 		llvm::Value* code_gen() override;
 	};
 
+	struct IfElse : public Statement
+	{
+		std::shared_ptr<Expression> cond_expr;
+		std::shared_ptr<Statement> true_body, false_body;
+
+		IfElse(std::shared_ptr<Expression> _cond_expr, std::shared_ptr<Statement> _true_body, std::shared_ptr<Statement> _false_body = nullptr)
+			: cond_expr(_cond_expr), true_body(_true_body), false_body(_false_body)
+		{}
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
+	};
+
 	struct ExpressionStatement : public Statement
 	{
 		std::shared_ptr<Expression> expression;

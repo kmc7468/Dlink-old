@@ -153,6 +153,7 @@ namespace Dlink
 			return t;
 		}
 	}
+
 	int P_var_decl(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list)
 	{
 		int i = 0, t;
@@ -254,6 +255,133 @@ namespace Dlink
 			else
 			{
 				e_list.push_back(Error("Expected expression after 'return'", begin[i - t].line));
+				return -1;
+			}
+		}
+		else
+		{
+			std::shared_ptr<Statement> sub_stmt;
+			t = P_if_else(begin, end, sub_stmt, e_list);
+			out = sub_stmt;
+			return t;
+		}
+	}
+
+	int P_if_else(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list)
+	{
+		int i = 0, t;
+
+		if(begin[i].type == TokenType::_if)
+		{
+			i++;
+
+			if(begin + i != end && begin[i].type == TokenType::lparen)
+			{
+				i++;
+				
+				std::shared_ptr<Expression> cond_expr;
+				if ((t = P_expr(begin + i, end, cond_expr, e_list)) > 0)
+				{
+					i += t;
+				
+					if(begin + i != end && begin[i].type == TokenType::rparen)
+					{
+						i++;
+						
+						if(begin + i != end && begin[i].type == TokenType::lbrace)
+						{
+							i++;
+							
+							if(begin + i != end)
+							{
+								std::shared_ptr<Statement> true_body;
+								t = P_block(begin + i, end, true_body, e_list);
+
+								i += t;
+								
+								if(begin + i != end && begin[i].type == TokenType::rbrace)
+								{
+									i++;
+									
+									if(begin + i != end && begin[i].type == TokenType::_else)
+									{
+										i++;
+										
+										if(begin + i != end && begin[i].type == TokenType::lbrace)
+										{
+											i++;
+
+											if(begin + i != end)
+											{ 
+												std::shared_ptr<Statement> false_body;
+												t = P_block(begin + i, end, false_body, e_list);
+
+												i += t;
+												
+												if(begin + i != end && begin[i].type == TokenType::rbrace)
+												{
+													i++;
+
+													out = std::make_shared<IfElse>(cond_expr, true_body, false_body);
+													return i;
+												}
+												else 
+												{
+													e_list.push_back(Error("Expected '}' after block", begin[i - t].line));
+													return -1;
+												}
+											}
+											else
+											{
+												e_list.push_back(Error("Expected '}' after block", begin[i - 1].line));
+												return -1;
+											}
+										}
+										else 
+										{
+											e_list.push_back(Error("Expected '{' after 'else'", begin[i - 1].line));
+											return -1;
+										}
+									}
+									else
+									{
+										out = std::make_shared<IfElse>(cond_expr, true_body);
+										return i;
+									}
+								}
+								else
+								{
+									e_list.push_back(Error("Expected '}' after block", begin[i - 1].line));
+									return -1;
+								}
+							}
+							else
+							{
+								e_list.push_back(Error("Unexpected end of file", begin[i - 1].line));
+								return -1;
+							}
+						}
+						else
+						{
+							e_list.push_back(Error("Expected '{' after ')'", begin[i - 1].line));
+							return -1;
+						}
+					}
+					else
+					{
+						e_list.push_back(Error("Expected ')' after expression", begin[i - 1].line));
+						return -1;
+					}
+				}
+				else
+				{
+					e_list.push_back(Error("Expected expression after '('", begin[i - t].line));
+					return -1;
+				}
+			}
+			else
+			{
+				e_list.push_back(Error("Expected '(' after 'if'", begin[i - 1].line));
 				return -1;
 			}
 		}

@@ -26,11 +26,25 @@ int main(int argc, char* argv[])
 	std::string code = R"(
 		int f(int n, int n2)
 		{
-			return n+n2;
+			return n*n2;
 		}
+
 		int main()
 		{
-			puts("Hello, World!");
+			int value = f(3, 7);
+
+			if(value == 42)
+			{
+				puts("3 * 7 equals 42");
+			}
+			else
+			{
+				if(value == 21)
+				{
+					puts("3 * 7 equals 21");
+				}
+			}
+
 			return 0;
 		}
 	)";
