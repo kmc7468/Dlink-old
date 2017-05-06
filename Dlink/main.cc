@@ -91,7 +91,6 @@ int main(int argc, char* argv[])
 		MAP_TOKEN(apostrophe),
 		MAP_TOKEN(semicolon),
 		MAP_TOKEN(colon),
-		MAP_TOKEN(scope),
 		MAP_TOKEN(exclamation),
 		MAP_TOKEN(question),
 		MAP_TOKEN(_if),
@@ -103,6 +102,10 @@ int main(int argc, char* argv[])
 		MAP_TOKEN(_do),
 		MAP_TOKEN(_break),
 		MAP_TOKEN(_continue),
+		MAP_TOKEN(_return),
+		MAP_TOKEN(_auto),
+		MAP_TOKEN(gpu),
+		MAP_TOKEN(cpu),
 	};
 	#undef MAP_TOKEN
 	
