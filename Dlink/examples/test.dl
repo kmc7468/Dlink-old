@@ -9,14 +9,12 @@ int is_even(int number)
 
 int main()
 {
-	if(is_even(10))
+	int a = 10;
 	{
-		puts("10 is even number");
-	}
-	else
-	{
-		puts("10 is odd number");
+		int a = 5;
+
+		a = 7;
 	}
 
-	return 0;
+	return a;
 }
