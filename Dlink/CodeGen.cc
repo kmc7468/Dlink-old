@@ -9,6 +9,7 @@ namespace Dlink
 	llvm::LLVMContext context;
 	std::shared_ptr<llvm::Module> module = std::make_shared<llvm::Module>("top", context);
 	llvm::IRBuilder<> builder(context);
+	std::unique_ptr<llvm::legacy::FunctionPassManager> func_pm;
 	std::map<std::string, llvm::Value*> sym_map;
 
 	ErrorList code_gen_errors;
@@ -101,16 +102,16 @@ namespace Dlink
 			llvm::AllocaInst* alloca_inst = builder.CreateAlloca(argument.getType(), &argument);
 			sym_map[argument.getName()] = alloca_inst;
 		}
-
-		if (llvm::ReturnInst* ret_inst = llvm::dyn_cast<llvm::ReturnInst>(body->code_gen()))
-		{
-			return function;
-		}
-		else
+		
+		llvm::ReturnInst* ret_inst = llvm::dyn_cast<llvm::ReturnInst>(body->code_gen());
+		if (!ret_inst)
 		{
 			builder.CreateRet(llvm::Constant::getNullValue(builder.getCurrentFunctionReturnType()));
-			return function;
 		}
+
+		func_pm->run(*function);
+
+		return function;
 	}
 
 	llvm::Value* Return::code_gen()

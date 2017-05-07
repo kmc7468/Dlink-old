@@ -3,6 +3,7 @@
 
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/FileSystem.h"
+#include "llvm/IR/PassManager.h"
 
 #include "Dlink/Dlink.hh"
 #include "Dlink/Lexer.hh"
@@ -11,6 +12,7 @@
 #include "Dlink/Parse.hh"
 #include "Dlink/Token.hh"
 #include "Dlink/CodeGen.hh"
+#include "Dlink/Init.hh"
 
 namespace dl = Dlink;
 
@@ -22,6 +24,8 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 	*/
+	
+	dl::InitializePassManager();
 
 	std::string code = R"(
 		int is_even(int n)
@@ -31,15 +35,16 @@ int main(int argc, char* argv[])
 		}
 		int main()
 		{
-			int a;
-			int b;
-			a = (b = is_even(10));
-			if(a)
+			int a = 10;
+			if(is_even(a))
 			{
-				puts("10 is even number");
+				a = 1;
 			}
-			else puts("10 is odd number");
-			return a + b;
+			else
+			{
+				a = 0;
+			}
+			return a;
 		}
 	)";
 
