@@ -31,16 +31,15 @@ int main(int argc, char* argv[])
 		}
 		int main()
 		{
+			int a;
+			int b;
+			a = (b = is_even(10));
+			if(a)
 			{
-				int a = 5;
+				puts("10 is even number");
 			}
-
-			if(is_even(10)) int a = 10;
-			else
-			{
-				puts("10 is odd number");
-			}
-			return a;
+			else puts("10 is odd number");
+			return a + b;
 		}
 	)";
 

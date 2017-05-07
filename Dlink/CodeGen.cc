@@ -98,7 +98,8 @@ namespace Dlink
 
 		for (auto& argument : function->args())
 		{
-			sym_map[argument.getName()] = &argument;
+			llvm::AllocaInst* alloca_inst = builder.CreateAlloca(argument.getType(), &argument);
+			sym_map[argument.getName()] = alloca_inst;
 		}
 
 		if (llvm::ReturnInst* ret_inst = llvm::dyn_cast<llvm::ReturnInst>(body->code_gen()))
@@ -144,7 +145,7 @@ namespace Dlink
 		builder.SetInsertPoint(if_block);
 
 		llvm::Value* cond_value = cond_expr->code_gen();
-		llvm::Value* cond_cmp = builder.CreateICmpEQ(cond_value, llvm::ConstantInt::get(cond_value->getType(), 1, true), "branch");
+		llvm::Value* cond_cmp = builder.CreateICmpNE(cond_value, llvm::ConstantInt::get(cond_value->getType(), 0, true), "branch");
 
 		if (false_body != nullptr)
 		{
@@ -203,14 +204,7 @@ namespace Dlink
 			return builder.getFalse();
 		}
 
-		if (value->getType()->isPointerTy())
-		{
-			return builder.CreateLoad(value);
-		}
-		else
-		{
-			return value;
-		}
+		return builder.CreateLoad(value);
 	}
 
 	llvm::Value* UnaryOP::code_gen()
@@ -252,9 +246,14 @@ namespace Dlink
 		{
 		case TokenType::equal:
 		{
-			auto load_inst = dynamic_cast<llvm::LoadInst*>(lhs_value);
+			llvm::LoadInst* load_inst = dynamic_cast<llvm::LoadInst*>(lhs_value);
+			if(!load_inst)
+			{
+				code_gen_errors.push_back(Error("Expected lvalue for left hand side of assignment operation", line));
+				return nullptr;
+			}
 			builder.CreateStore(rhs_value, load_inst->getPointerOperand());
-			break;
+			return rhs_value;
 		}
 		case TokenType::bit_or:
 			return builder.CreateOr(lhs_value, rhs_value);
