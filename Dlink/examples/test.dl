@@ -1,0 +1,22 @@
+int is_even(int number)
+{
+	if(number % 2)
+	{
+		return 0;
+	}
+	else return 1;
+}
+
+int main()
+{
+	if(is_even(10))
+	{
+		puts("10 is even number");
+	}
+	else
+	{
+		puts("10 is odd number");
+	}
+
+	return 0;
+}

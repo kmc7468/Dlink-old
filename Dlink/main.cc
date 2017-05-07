@@ -1,5 +1,8 @@
 #include <iostream>
 #include <memory>
+#include <string>
+#include <fstream>
+#include <streambuf>
 
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/FileSystem.h"
@@ -23,30 +26,12 @@ int main(int argc, char* argv[])
 	{
 		return 0;
 	}
-	
-	
-	dl::InitializePassManager();
 
-	std::string code = R"(
-		int is_even(int n)
-		{
-			if(n % 2 == 0) return 1;
-			else return 0;
-		}
-		int main()
-		{
-			int a = 10;
-			if(is_even(a))
-			{
-				a = 1;
-			}
-			else
-			{
-				a = 0;
-			}
-			return 0;
-		}
-	)";
+	std::ifstream code_file(dl::Dlink::input_files[0]);
+	
+	std::string code((std::istreambuf_iterator<char>(code_file)), std::istreambuf_iterator<char>());
+
+	dl::InitializePassManager();
 
 	dl::Lexer lexer;
 	lexer.dump(dl::tokentype_map);
