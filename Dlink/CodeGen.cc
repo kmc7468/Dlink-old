@@ -32,20 +32,13 @@ namespace Dlink
 	llvm::Value* Scope::code_gen()
 	{
 		llvm::Value* last_value = nullptr;
-		std::vector<std::shared_ptr<VariableDeclaration>> vars;
+
+		std::map<std::string, llvm::Value*> temp_map = sym_map;
 		for (auto statement : statements)
 		{
 			last_value = statement->code_gen();
-			if (dynamic_cast<VariableDeclaration*>(statement.get()))
-			{
-				vars.push_back(
-					std::dynamic_pointer_cast<VariableDeclaration, Statement>(statement));
-			}
 		}
-		for (auto var : vars)
-		{
-			sym_map.erase(sym_map.find(var->id.id.data));
-		}
+		sym_map = temp_map;
 		return last_value;
 	}
 
@@ -65,9 +58,16 @@ namespace Dlink
 			builder.CreateStore(init_expression, alloca);
 		}
 
-		sym_map[id.id.data] = alloca;
-
-		return alloca;
+//		if(sym_map.find(id.id.data) == sym_map.end())
+//		{
+			sym_map[id.id.data] = alloca;
+			return alloca;
+//		}
+//		else
+//		{
+//			code_gen_errors.push_back(Error("Redefinition of variable '" + id.id.data + "'", line));
+//			return nullptr;
+//		}
 	}
 
 #ifdef DLINK_MACRO_ALLOCA_PUSH
