@@ -7,6 +7,7 @@ namespace Dlink
 {
 	std::string Dlink::startup_path;
 	std::vector<std::string> Dlink::input_files;
+	int Dlink::optimization_level = 0;
 
 	bool Dlink::parse_command_line(int argc, char* argv[])
 	{
@@ -51,8 +52,7 @@ namespace Dlink
 		}
 		else
 		{
-			std::cout << "Error: " << argv[1] << " is unknown option.\n";
-			return false;
+			return parse_command_line_default(argc, argv);
 		}
 	}
 	bool Dlink::parse_command_line_3(int argc, char* argv[])
@@ -71,8 +71,7 @@ namespace Dlink
 		}
 		else
 		{
-			std::cout << "Error: " << argv[1] << " cannot have arguments.\n";
-			return false;
+			return parse_command_line_default(argc, argv);
 		}
 	}
 	bool Dlink::parse_command_line_default(int argc, char* argv[])
@@ -99,7 +98,10 @@ namespace Dlink
 					return false;
 				}
 
-				// Compile Options
+				else if (cmdline.substr(0, 2) == "-O")
+				{
+					optimization_level = std::stoi(cmdline.substr(2));
+				}
 				
 				else
 				{
