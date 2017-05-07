@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClCompile Include="CodeGen.cc" />
     <ClCompile Include="Dlink.cc" />
+    <ClCompile Include="Error.cc" />
     <ClCompile Include="Lexer.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="Parse.cc" />

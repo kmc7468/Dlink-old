@@ -1,23 +1,30 @@
 #pragma once
 
 #include <ostream>
+#include <vector>
 
 namespace Dlink
 {
-	class Error
+	class Error final
 	{
-		private:
-			std::string error_message_;
-			std::size_t line_;
+	private:
+		const bool is_warning_;
 
-			const bool is_warning_ = false;
-		public:
-			Error(const std::string error_message, std::size_t line, bool is_warning = false) 
-				: error_message_(error_message), line_(line), is_warning_(is_warning) {}
-			void print(std::ostream& os)
-			{
-				os << (is_warning_ ? "[Warning]" : "[Error]") << " Line " << line_ << " : " << error_message_ << std::endl;
-			}
+		std::string error_message_;
+		std::size_t line_;
+
+	public:
+		Error(const std::string& error_message, const std::size_t& line);
+		Error(const std::string& error_message, const std::size_t& line, bool is_warning);
+		Error(const Error& error);
+		~Error() = default;
+
+	public:
+		Error& operator=(const Error& error) = delete;
+		Error& operator=(Error&& error) noexcept = delete;
+
+	public:
+		void print(std::ostream& os);
 	};
 
 	using ErrorList = std::vector<Error>;
