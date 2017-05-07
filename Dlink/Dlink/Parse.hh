@@ -18,6 +18,7 @@ namespace Dlink
 	int P_scope(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list);
 	int P_func_decl(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list);
 	int P_var_decl(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list);
+	int P_class_decl(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list);
 	int P_return(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list);
 	int P_if_else(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list);
 	int P_expr_stmt(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list);

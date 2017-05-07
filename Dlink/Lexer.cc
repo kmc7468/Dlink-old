@@ -16,6 +16,10 @@ namespace Dlink
 		keyword_map_["auto"] = TokenType::_auto;
 		keyword_map_["gpu"] = TokenType::gpu;
 		keyword_map_["cpu"] = TokenType::cpu;
+		keyword_map_["class"] = TokenType::_class;
+		keyword_map_["public"] = TokenType::_public;
+		keyword_map_["protected"] = TokenType::_protected;
+		keyword_map_["private"] = TokenType::_private;
 	}
 
 	void Lexer::lex(const std::string& str)

@@ -5,8 +5,8 @@ namespace Dlink
 	void InitializePassManager()
 	{
 		func_pm = std::make_unique<llvm::legacy::FunctionPassManager>(module.get());
-		
-		if(Dlink::optimization_level > 1)
+
+		if (Dlink::optimization_level > 1)
 		{
 			func_pm->add(llvm::createInstructionCombiningPass());
 			func_pm->add(llvm::createReassociatePass());

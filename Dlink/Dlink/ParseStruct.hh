@@ -52,6 +52,13 @@ namespace Dlink
 		virtual ~Type()
 		{};
 	};
+
+	enum class Modifier
+	{
+		Public,
+		Protected,
+		Private,
+	};
 }
 
 //Expression nodes
@@ -164,18 +171,51 @@ namespace Dlink
 		llvm::Value* code_gen() override;
 	};
 
+	struct FieldDeclaration : public VariableDeclaration
+	{
+		const bool is_dynamic_field;
+		const Modifier modifier;
+
+		FieldDeclaration(std::shared_ptr<Type> _type, const Identifier& _id,
+						 bool _is_dynamic_field = false, Modifier _modifier = Modifier::Private)
+			: VariableDeclaration(_type, _id), is_dynamic_field(_is_dynamic_field),
+			modifier(_modifier)
+		{}
+		FieldDeclaration(std::shared_ptr<Type> _type, const Identifier& _id, std::shared_ptr<Expression> _expression,
+						 bool _is_dynamic_field = false, Modifier _modifier = Modifier::Private)
+			: VariableDeclaration(_type, _id, _expression), is_dynamic_field(_is_dynamic_field),
+			modifier(_modifier)
+		{}
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
+		llvm::Value* code_gen() override
+		{
+			return nullptr;
+		}
+	};
+
 	struct FunctionDeclaration : public Statement
 	{
 		std::shared_ptr<Type> ret_type;
 		const Identifier id;
 		const std::vector<VariableDeclaration> arg_list;
 		std::shared_ptr<Statement> body;
-		const bool is_dynamic_method;
 
-		FunctionDeclaration(std::shared_ptr<Type> _ret_type, const Identifier& _id, const std::vector<VariableDeclaration>& _arg_list, std::shared_ptr<Statement> _body,
-							bool _is_dynamic_method = false)
-			: ret_type(_ret_type), id(_id), arg_list(_arg_list), body(_body),
-			is_dynamic_method(_is_dynamic_method)
+		FunctionDeclaration(std::shared_ptr<Type> _ret_type, const Identifier& _id, const std::vector<VariableDeclaration>& _arg_list, std::shared_ptr<Statement> _body)
+			: ret_type(_ret_type), id(_id), arg_list(_arg_list), body(_body)
+		{}
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
+		llvm::Value* code_gen() override;
+	};
+
+	struct MethodDeclaration : public FunctionDeclaration
+	{
+		const bool is_dynamic_method;
+		const Modifier modifier;
+
+		MethodDeclaration(std::shared_ptr<Type> _ret_type, const Identifier& _id, const std::vector<VariableDeclaration>& _arg_list, std::shared_ptr<Statement> _body,
+							bool _is_dynamic_method = false, Modifier _modifier = Modifier::Private)
+			: FunctionDeclaration(_ret_type, _id, _arg_list, _body), is_dynamic_method(_is_dynamic_method),
+			modifier(_modifier)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
@@ -184,11 +224,11 @@ namespace Dlink
 	struct ClassDeclaration : public Statement
 	{
 		const Identifier id;
-		const std::vector<VariableDeclaration> fields;
-		const std::vector<FunctionDeclaration> methods;
+		const std::vector<FieldDeclaration> fields;
+		const std::vector<MethodDeclaration> methods;
 
-		ClassDeclaration(const Identifier& _id, const std::vector<VariableDeclaration>& _fields,
-						 const std::vector<FunctionDeclaration>& _methods)
+		ClassDeclaration(const Identifier& _id, const std::vector<FieldDeclaration>& _fields,
+						 const std::vector<MethodDeclaration>& _methods)
 			: id(_id), fields(_fields), methods(_methods)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;

@@ -83,6 +83,11 @@ namespace Dlink
 		_auto,
 		gpu,
 		cpu,
+
+		_class,
+		_public,
+		_protected,
+		_private,
 	};
 
 	struct Token

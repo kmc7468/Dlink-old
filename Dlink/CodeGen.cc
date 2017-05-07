@@ -60,8 +60,8 @@ namespace Dlink
 
 //		if(sym_map.find(id.id.data) == sym_map.end())
 //		{
-			sym_map[id.id.data] = alloca;
-			return alloca;
+		sym_map[id.id.data] = alloca;
+		return alloca;
 //		}
 //		else
 //		{
@@ -77,7 +77,7 @@ namespace Dlink
 
 	llvm::Value* FunctionDeclaration::code_gen()
 	{
-		std::vector<llvm::Type * > arg_types;
+		std::vector<llvm::Type*> arg_types;
 		for (const VariableDeclaration& argument : arg_list)
 		{
 			arg_types.push_back(argument.type->get_type());
@@ -114,11 +114,19 @@ namespace Dlink
 		return function;
 	}
 
+	llvm::Value* MethodDeclaration::code_gen()
+	{
+		// TODO
+
+		return nullptr;
+	}
+
 	llvm::Value* ClassDeclaration::code_gen()
 	{
 		llvm::StructType* struct_inst =
 			llvm::StructType::create(module->getContext(),
-									 std::string("struct") + id.id.data);
+									 std::string("struct@") + id.id.data);
+	
 		std::vector<llvm::Type*> f;
 
 		for (const auto& f_i : fields)
@@ -126,10 +134,7 @@ namespace Dlink
 			f.push_back(f_i.type->get_type());
 		}
 
-		if (struct_inst->isOpaque())
-		{
-			struct_inst->setBody(f, false);
-		}
+		struct_inst->setBody(f, false);
 
 		return nullptr;
 	}

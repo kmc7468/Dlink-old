@@ -29,8 +29,8 @@ namespace Dlink
 	{
 		int i = 0, t;
 		auto scope = std::make_shared<Scope>();
-		
-		if(begin + i != end && begin[i].type == TokenType::lbrace)
+
+		if (begin + i != end && begin[i].type == TokenType::lbrace)
 		{
 			i++;
 		}
@@ -39,7 +39,7 @@ namespace Dlink
 			std::shared_ptr<Statement> sub_expr_stmt;
 			t = P_func_decl(begin, end, sub_expr_stmt, e_list);
 			out = sub_expr_stmt;
-			return t;	
+			return t;
 		}
 
 		while (true)
@@ -56,13 +56,13 @@ namespace Dlink
 			}
 		}
 
-		if(begin + i != end && begin[i].type == TokenType::rbrace)
+		if (begin + i != end && begin[i].type == TokenType::rbrace)
 		{
 			i++;
 		}
 		else
 		{
-			e_list.push_back(Error("Expected '}' after block", begin[i-1].line));
+			e_list.push_back(Error("Expected '}' after block", begin[i - 1].line));
 		}
 
 		out = scope;
@@ -256,7 +256,7 @@ namespace Dlink
 			else
 			{
 				std::shared_ptr<Statement> sub_expr_stmt;
-				t = P_return(begin, end, sub_expr_stmt, e_list);
+				t = P_class_decl(begin, end, sub_expr_stmt, e_list);
 				out = sub_expr_stmt;
 				return t;
 			}
@@ -264,8 +264,90 @@ namespace Dlink
 		else
 		{
 			std::shared_ptr<Statement> sub_expr_stmt;
-			t = P_return(begin, end, sub_expr_stmt, e_list);
+			t = P_class_decl(begin, end, sub_expr_stmt, e_list);
 			out = sub_expr_stmt;
+			return t;
+		}
+	}
+
+	int P_class_decl(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list)
+	{
+		int i = 0, t;
+
+		if (begin[i].type == TokenType::_class)
+		{
+			std::vector<MethodDeclaration> methods;
+			std::vector<FieldDeclaration> fields;
+			
+			i++;
+			Identifier id(begin[i]);
+
+			i++;
+			if (begin[i].type == TokenType::lbrace)
+			{
+				while (true)
+				{
+					i++;
+					Modifier m = Modifier::Private;
+
+					if (begin[i].type == TokenType::_public)
+					{
+						m = Modifier::Public;
+						i++;
+					}
+					else if (begin[i].type == TokenType::_protected)
+					{
+						m = Modifier::Protected;
+						i++;
+					}
+					else if (begin[i].type == TokenType::_private)
+					{
+						i++;
+					}
+					else if (begin[i].type == TokenType::rbrace)
+					{
+						out = std::make_shared<ClassDeclaration>(id, fields,
+																 methods);
+
+						return ++i;
+					}
+
+					std::shared_ptr<Statement> out_temp;
+					t = P_func_decl(begin + i, end, out_temp, e_list);
+					i += t - 1;
+
+					if (dynamic_cast<FunctionDeclaration*>(out_temp.get()))
+					{
+						// TODO
+					}
+					else if (dynamic_cast<VariableDeclaration*>(out_temp.get()))
+					{
+						std::shared_ptr<VariableDeclaration> fd =
+							std::dynamic_pointer_cast<VariableDeclaration>(out_temp);
+
+						FieldDeclaration f(
+							fd->type, fd->id, fd->expression, true, m
+						);
+						fields.push_back(f);
+					}
+					else
+					{
+						e_list.push_back(Error("Expected only declare variables or functions.", begin[i - 1].line));
+						return -1;
+					}
+				}
+			}
+			else
+			{
+				e_list.push_back(Error("Expected must be '{' after class.", begin[i - 1].line));
+				return -1;
+			}
+		}
+		else
+		{
+			std::shared_ptr<Statement> sub_stmt;
+			t = P_return(begin, end, sub_stmt, e_list);
+			out = sub_stmt;
 			return t;
 		}
 	}
@@ -355,7 +437,7 @@ namespace Dlink
 
 									std::shared_ptr<Scope> scoped_body = std::make_shared<Scope>();
 									scoped_body->statements = std::dynamic_pointer_cast<Block>(true_body2)->statements;
-									true_body = scoped_body;	
+									true_body = scoped_body;
 								}
 								else
 								{
@@ -403,7 +485,7 @@ namespace Dlink
 
 													std::shared_ptr<Scope> scoped_body = std::make_shared<Scope>();
 													scoped_body->statements = std::dynamic_pointer_cast<Block>(false_body2)->statements;
-													false_body = scoped_body;	
+													false_body = scoped_body;
 												}
 												else
 												{

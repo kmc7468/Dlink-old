@@ -105,13 +105,30 @@ namespace Dlink
 		return tree;
 	}
 
+	std::string FieldDeclaration::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
+	{
+		std::string tree = std::string(depth * 6, ' ') + "Field Decl Begin\n";
+		tree += std::string(depth * 6, ' ') + "Type : \n";
+		tree += type->tree_gen(depth + 1, tokentype_map) + "\n";
+		tree += std::string(depth * 6, ' ') + "Is Dynamic : " +
+			(is_dynamic_field ? "Dynamic" : "Static") + '\n';
+		tree += std::string(depth * 6, ' ') + "Name : " + id.id.data + "\n";
+
+		if (expression)
+		{
+			tree += std::string(depth * 6, ' ') + "Init expression : \n";
+			tree += expression->tree_gen(depth + 1, tokentype_map) + "\n";
+		}
+
+		tree += std::string(depth * 6, ' ') + "End Field Decl";
+		return tree;
+	}
+
 	std::string FunctionDeclaration::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		std::string tree = std::string(depth * 6, ' ') + "Function Decl Begin\n";
 		tree += std::string(depth * 6, ' ') + "Return Type : \n";
 		tree += ret_type->tree_gen(depth + 1, tokentype_map) + "\n";
-		tree += std::string(depth * 6, ' ') + "Is Dynamic Method : " +
-			(is_dynamic_method ? "True" : "False") + '\n';
 		tree += std::string(depth * 6, ' ') + "Name : " + id.id.data + "\n";
 
 		tree += std::string(depth * 6, ' ') + "Arguments : \n";
@@ -123,6 +140,27 @@ namespace Dlink
 		tree += std::string(depth * 6, ' ') + "Body : \n";
 		tree += body->tree_gen(depth + 1, tokentype_map) + "\n";
 		tree += std::string(depth * 6, ' ') + "End Func Decl";
+		return tree;
+	}
+
+	std::string MethodDeclaration::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
+	{
+		std::string tree = std::string(depth * 6, ' ') + "Method Decl Begin\n";
+		tree += std::string(depth * 6, ' ') + "Return Type : \n";
+		tree += ret_type->tree_gen(depth + 1, tokentype_map) + '\n';
+		tree += std::string(depth * 6, ' ') + "Is Dynamic : " +
+			(is_dynamic_method ? "Dynamic" : "Static") + '\n';
+		tree += std::string(depth * 6, ' ') + "Name : " + id.id.data + '\n';
+
+		tree += std::string(depth * 6, ' ') + "Arguments : \n";
+		for (auto arg : arg_list)
+		{
+			tree += arg.tree_gen(depth + 1, tokentype_map) + '\n';
+		}
+
+		tree += std::string(depth * 6, ' ') + "Body : \n";
+		tree += body->tree_gen(depth + 1, tokentype_map) + '\n';
+		tree += std::string(depth * 6, ' ') + "End Method Decl End";
 		return tree;
 	}
 
@@ -143,7 +181,7 @@ namespace Dlink
 			tree += f.tree_gen(depth + 1, tokentype_map) + '\n';
 		}
 
-		tree += "End Class Decl";
+		tree += std::string(depth * 6, ' ') + "End Class Decl";
 		return tree;
 	}
 
