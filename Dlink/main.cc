@@ -26,24 +26,21 @@ int main(int argc, char* argv[])
 	std::string code = R"(
 		int is_even(int n)
 		{
-			if(n % 2 == 0)
-				int a = 5;
-			else
-				int b = 3;
-			return a;
+			if(n % 2 == 0) return 1;
+			else return 0;
 		}
-
 		int main()
 		{
-			if(is_even(10))
 			{
-				puts("10 is even number");
+				int a = 5;
 			}
+
+			if(is_even(10)) int a = 10;
 			else
 			{
 				puts("10 is odd number");
 			}
-			return 0;
+			return a;
 		}
 	)";
 

@@ -27,6 +27,7 @@ namespace Dlink
 namespace Dlink
 {
 	int P_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
+	int P_assign_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 	int P_logical_or_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 	int P_logical_and_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 	int P_bitwise_or_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);

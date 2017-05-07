@@ -10,7 +10,7 @@ namespace Dlink
 		while (true)
 		{
 			std::shared_ptr<Statement> sub_stmt;
-			if (begin + i != end && (t = P_func_decl(begin + i, end, sub_stmt, e_list)) >= 0)
+			if (begin + i != end && (t = P_scope(begin + i, end, sub_stmt, e_list)) >= 0)
 			{
 				i += t;
 				block->statements.push_back(sub_stmt);
@@ -29,6 +29,18 @@ namespace Dlink
 	{
 		int i = 0, t;
 		auto scope = std::make_shared<Scope>();
+		
+		if(begin + i != end && begin[i].type == TokenType::lbrace)
+		{
+			i++;
+		}
+		else
+		{
+			std::shared_ptr<Statement> sub_expr_stmt;
+			t = P_func_decl(begin, end, sub_expr_stmt, e_list);
+			out = sub_expr_stmt;
+			return t;	
+		}
 
 		while (true)
 		{
@@ -42,6 +54,15 @@ namespace Dlink
 			{
 				break;
 			}
+		}
+
+		if(begin + i != end && begin[i].type == TokenType::rbrace)
+		{
+			i++;
+		}
+		else
+		{
+			e_list.push_back(Error("Expected '}' after block", begin[i-1].line));
 		}
 
 		out = scope;
@@ -329,11 +350,21 @@ namespace Dlink
 
 								if (!no_brace)
 								{
-									t = P_scope(begin + i, end, true_body, e_list);
+									std::shared_ptr<Statement> true_body2;
+									t = P_block(begin + i, end, true_body2, e_list); // asdf func
+
+									std::shared_ptr<Scope> scoped_body = std::make_shared<Scope>();
+									scoped_body->statements = std::dynamic_pointer_cast<Block>(true_body2)->statements;
+									true_body = scoped_body;	
 								}
 								else
 								{
-									t = P_scope(begin + i, end, true_body, e_list); // asdf func
+									std::shared_ptr<Statement> true_body2;
+									t = P_func_decl(begin + i, end, true_body2, e_list); // asdf func
+
+									std::shared_ptr<Scope> scoped_body = std::make_shared<Scope>();
+									scoped_body->statements.push_back(true_body2);
+									true_body = scoped_body;
 								}
 
 								i += t;
@@ -367,11 +398,21 @@ namespace Dlink
 
 												if (!no_brace2)
 												{
-													t = P_scope(begin + i, end, false_body, e_list);
+													std::shared_ptr<Statement> false_body2;
+													t = P_block(begin + i, end, false_body2, e_list); // asdf func
+
+													std::shared_ptr<Scope> scoped_body = std::make_shared<Scope>();
+													scoped_body->statements = std::dynamic_pointer_cast<Block>(false_body2)->statements;
+													false_body = scoped_body;	
 												}
 												else
 												{
-													t = P_scope(begin + i, end, false_body, e_list); // asdf func 2
+													std::shared_ptr<Statement> false_body2;
+													t = P_func_decl(begin + i, end, false_body2, e_list); // asdf func
+
+													std::shared_ptr<Scope> scoped_body = std::make_shared<Scope>();
+													scoped_body->statements.push_back(false_body2);
+													false_body = scoped_body;
 												}
 
 												i += t;
@@ -489,7 +530,48 @@ namespace Dlink
 {
 	int P_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list)
 	{
-		return P_logical_or_expr(begin, end, out, e_list);
+		return P_assign_expr(begin, end, out, e_list);
+	}
+
+	int P_assign_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list)
+	{
+		if (begin == end)
+		{
+			return -1;
+		}
+
+		int i = 0, t = 0;
+
+		std::shared_ptr<Expression> sub_expr;
+		if ((t = P_logical_or_expr(begin + i, end, sub_expr, e_list)) >= 0)
+		{
+			i = t;
+		}
+		else
+		{
+			return -1;
+		}
+
+
+		while (begin + i != end && (begin[i].type == TokenType::equal))
+		{
+			i++;
+			std::shared_ptr<Expression> sub_expr2;
+			if ((t = P_logical_or_expr(begin + i, end, sub_expr2, e_list)) >= 0)
+			{
+				i += t;
+				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
+				sub_expr->line = begin[i - t].line;
+			}
+			else
+			{
+				i--;
+				break;
+			}
+		}
+
+		out = sub_expr;
+		return i;
 	}
 
 	int P_logical_or_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list)

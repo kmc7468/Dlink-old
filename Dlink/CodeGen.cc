@@ -250,6 +250,12 @@ namespace Dlink
 
 		switch (op.type)
 		{
+		case TokenType::equal:
+		{
+			auto load_inst = dynamic_cast<llvm::LoadInst*>(lhs_value);
+			builder.CreateStore(rhs_value, load_inst->getPointerOperand());
+			break;
+		}
 		case TokenType::bit_or:
 			return builder.CreateOr(lhs_value, rhs_value);
 		case TokenType::bit_xor:
