@@ -76,6 +76,8 @@ namespace Dlink
 	}
 	bool Dlink::parse_command_line_default(int argc, char* argv[])
 	{
+		bool _O = false;
+
 		for (int i = 1; i < argc; ++i)
 		{
 			std::string cmdline = argv[i];
@@ -100,6 +102,13 @@ namespace Dlink
 
 				else if (cmdline.substr(0, 2) == "-O")
 				{
+					if (_O)
+					{
+						std::cout << "Error: Optimization options can only be used once."
+							<< std::endl;
+						return false;
+					}
+					_O = true;
 					optimization_level = std::stoi(cmdline.substr(2));
 				}
 				
