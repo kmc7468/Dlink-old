@@ -178,6 +178,19 @@ namespace Dlink
 		llvm::Value* code_gen() override;
 	};
 
+	struct ClassDeclaration : public Statement
+	{
+		const std::vector<VariableDeclaration> fields;
+		const std::vector<FunctionDeclaration> methods;
+
+		ClassDeclaration(const std::vector<VariableDeclaration>& _fields,
+						 const std::vector<FunctionDeclaration>& _methods)
+			: fields(_fields), methods(_methods)
+		{}
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
+	};
+
 	struct Return : public Statement
 	{
 		std::shared_ptr<Expression> ret_expr;

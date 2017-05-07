@@ -134,6 +134,7 @@
     <ClCompile Include="CodeGen.cc" />
     <ClCompile Include="Dlink.cc" />
     <ClCompile Include="Error.cc" />
+    <ClCompile Include="Init.cc" />
     <ClCompile Include="Lexer.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="Parse.cc" />
@@ -144,6 +145,7 @@
     <ClInclude Include="Dlink\CodeGen.hh" />
     <ClInclude Include="Dlink\Dlink.hh" />
     <ClInclude Include="Dlink\Error.hh" />
+    <ClInclude Include="Dlink\Init.hh" />
     <ClInclude Include="Dlink\Lexer.hh" />
     <ClInclude Include="Dlink\Parse.hh" />
     <ClInclude Include="Dlink\ParseStruct.hh" />

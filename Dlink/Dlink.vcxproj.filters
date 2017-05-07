@@ -33,6 +33,9 @@
     <ClCompile Include="Error.cc">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Init.cc">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dlink\Token.hh">
@@ -54,6 +57,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Dlink\CodeGen.hh">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Dlink\Init.hh">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
