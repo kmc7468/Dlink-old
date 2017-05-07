@@ -114,6 +114,11 @@ namespace Dlink
 		return function;
 	}
 
+	llvm::Value* ClassDeclaration::code_gen()
+	{
+		return nullptr; // TODO
+	}
+
 	llvm::Value* Return::code_gen()
 	{
 		return builder.CreateRet(ret_expr->code_gen());

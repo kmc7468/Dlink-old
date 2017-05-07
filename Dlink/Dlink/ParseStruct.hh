@@ -16,7 +16,7 @@ namespace Dlink
 	{
 		std::size_t line = 0;
 
-		virtual std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+		virtual std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 		{
 			return std::string(depth * 6, ' ') + "<Undefined Tree>";
 		};
@@ -39,7 +39,7 @@ namespace Dlink
 	{
 		std::size_t line = 0;
 
-		virtual std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+		virtual std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 		{
 			return std::string(depth * 6, ' ') + "<Undefined Tree>";
 		};
@@ -63,7 +63,7 @@ namespace Dlink
 
 		Integer32(int32_t _data) : data(_data)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
@@ -73,7 +73,7 @@ namespace Dlink
 
 		Float(float _data) : data(_data)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
@@ -83,7 +83,7 @@ namespace Dlink
 
 		String(std::string _data) : data(_data)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
@@ -93,7 +93,7 @@ namespace Dlink
 
 		Identifier(const Token& _id) : id(_id)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
@@ -104,7 +104,7 @@ namespace Dlink
 
 		UnaryOP(const Token& _op, std::shared_ptr<Expression> _rhs) : op(_op), rhs(_rhs)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
@@ -116,7 +116,7 @@ namespace Dlink
 		BinaryOP(std::shared_ptr<Expression> _lhs, const Token& _op, std::shared_ptr<Expression> _rhs)
 			: lhs(_lhs), op(_op), rhs(_rhs)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
@@ -127,7 +127,7 @@ namespace Dlink
 
 		FuncCall(const Identifier& _id, const std::vector<std::shared_ptr<Expression>>& _args) : id(_id), args(_args)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 }
@@ -139,13 +139,13 @@ namespace Dlink
 	{
 		std::vector<std::shared_ptr<Statement>> statements;
 
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
 	struct Scope : public Block
 	{
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
@@ -160,7 +160,7 @@ namespace Dlink
 		VariableDeclaration(std::shared_ptr<Type> _type, const Identifier& _id, std::shared_ptr<Expression> _expression)
 			: type(_type), id(_id), expression(_expression)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
@@ -174,20 +174,21 @@ namespace Dlink
 		FunctionDeclaration(std::shared_ptr<Type> _ret_type, const Identifier& _id, const std::vector<VariableDeclaration>& _arg_list, std::shared_ptr<Statement> _body)
 			: ret_type(_ret_type), id(_id), arg_list(_arg_list), body(_body)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
 	struct ClassDeclaration : public Statement
 	{
+		const Identifier id;
 		const std::vector<VariableDeclaration> fields;
 		const std::vector<FunctionDeclaration> methods;
 
-		ClassDeclaration(const std::vector<VariableDeclaration>& _fields,
+		ClassDeclaration(const Identifier& _id, const std::vector<VariableDeclaration>& _fields,
 						 const std::vector<FunctionDeclaration>& _methods)
-			: fields(_fields), methods(_methods)
+			: id(_id), fields(_fields), methods(_methods)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
@@ -197,7 +198,7 @@ namespace Dlink
 
 		Return(std::shared_ptr<Expression> _ret_expr) : ret_expr(_ret_expr)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
@@ -209,7 +210,7 @@ namespace Dlink
 		IfElse(std::shared_ptr<Expression> _cond_expr, std::shared_ptr<Statement> _true_body, std::shared_ptr<Statement> _false_body = nullptr)
 			: cond_expr(_cond_expr), true_body(_true_body), false_body(_false_body)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 
@@ -219,7 +220,7 @@ namespace Dlink
 
 		ExpressionStatement(std::shared_ptr<Expression> _expression) : expression(_expression)
 		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
 }
@@ -234,7 +235,7 @@ namespace Dlink
 		IdentifierType(const Identifier& _id) : id(_id)
 		{}
 
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Type* get_type() override;
 	};
 }

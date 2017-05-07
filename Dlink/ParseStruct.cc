@@ -3,33 +3,33 @@
 //Expression nodes
 namespace Dlink
 {
-	std::string Integer32::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string Integer32::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		return std::string(depth * 6, ' ') + "Integer32 : " + std::to_string(data);
 	}
 
-	std::string Float::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string Float::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		return std::string(depth * 6, ' ') + "Float : " + std::to_string(data);
 	}
 
-	std::string String::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string String::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		return std::string(depth * 6, ' ') + "String : " + data;
 	}
 
-	std::string Identifier::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string Identifier::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		return std::string(depth * 6, ' ') + "Identifier : " + id.data;
 	}
-	std::string UnaryOP::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string UnaryOP::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		std::string tree = std::string(depth * 6, ' ') + "UnaryOP(" + tokentype_map[op.type] + ")\n";
 		tree += rhs->tree_gen(depth + 1, tokentype_map);
 		return tree;
 	}
 
-	std::string BinaryOP::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string BinaryOP::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		std::string tree = std::string(depth * 6, ' ') + "BinaryOP(" + tokentype_map[op.type] + ")\n";
 		tree += lhs->tree_gen(depth + 1, tokentype_map) + "\n";
@@ -37,7 +37,7 @@ namespace Dlink
 		return tree;
 	}
 
-	std::string FuncCall::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string FuncCall::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		std::string tree = std::string(depth*6, ' ') + "FuncCall\n";		
  		depth++;		
@@ -58,7 +58,7 @@ namespace Dlink
 //Statement nodes
 namespace Dlink
 {
-	std::string Block::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string Block::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		std::string tree = std::string(depth * 6, ' ') + "Block Begin\n";
 		depth++;
@@ -73,7 +73,7 @@ namespace Dlink
 		return tree;
 	}
 
-	std::string Scope::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string Scope::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		std::string tree = std::string(depth * 6, ' ') + "Scope Begin\n";
 		depth++;
@@ -88,7 +88,7 @@ namespace Dlink
 		return tree;
 	}
 
-	std::string VariableDeclaration::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string VariableDeclaration::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		std::string tree = std::string(depth*6, ' ') + "Variable Decl Begin\n";		
  		tree += std::string(depth*6, ' ') + "Type : \n";		
@@ -105,7 +105,7 @@ namespace Dlink
 		return tree;
 	}
 
-	std::string FunctionDeclaration::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string FunctionDeclaration::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		std::string tree = std::string(depth * 6, ' ') + "Function Decl Begin\n";
 		tree += std::string(depth * 6, ' ') + "Return Type : \n";
@@ -124,14 +124,35 @@ namespace Dlink
 		return tree;
 	}
 
-	std::string Return::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string ClassDeclaration::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
+	{
+		std::string tree = std::string(depth * 6, ' ') + "Class Decl Begin\n";
+		tree += std::string(depth * 6, ' ') + "Name : " + id.id.data + '\n';
+
+		tree += std::string(depth * 6, ' ') + "Non-Static Methods : \n";
+		for (const auto& m : methods)
+		{
+			tree += m.tree_gen(depth + 1, tokentype_map) + '\n';
+		}
+		
+		tree += std::string(depth * 6, ' ') + "Non-Static Fields : \n";
+		for (const auto& f : fields)
+		{
+			tree += f.tree_gen(depth + 1, tokentype_map) + '\n';
+		}
+
+		tree += "End Class Decl";
+		return tree;
+	}
+
+	std::string Return::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		std::string tree = std::string(depth * 6, ' ') + "Return : \n";
 		tree += ret_expr->tree_gen(depth + 1, tokentype_map);
 		return tree;
 	}
 
-	std::string IfElse::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string IfElse::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		std::string tree = std::string(depth * 6, ' ') + "If\n";
 		tree += std::string(depth * 6, ' ') + "Condition : \n";
@@ -149,7 +170,7 @@ namespace Dlink
 		return tree;
 	}
 
-	std::string ExpressionStatement::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string ExpressionStatement::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		return expression->tree_gen(depth, tokentype_map);
 	}
@@ -158,7 +179,7 @@ namespace Dlink
 //Type nodes
 namespace Dlink
 {
-	std::string IdentifierType::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	std::string IdentifierType::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		return std::string(depth * 6, ' ') + "IdentifierType(" + id.id.data + ")";
 	}
