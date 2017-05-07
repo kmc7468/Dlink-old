@@ -143,6 +143,12 @@ namespace Dlink
 		llvm::Value* code_gen() override;
 	};
 
+	struct Scope : public Block
+	{
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) override;
+		llvm::Value* code_gen() override;
+	};
+
 	struct VariableDeclaration : public Statement
 	{
 		std::shared_ptr<Type> type;

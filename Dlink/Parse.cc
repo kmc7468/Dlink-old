@@ -25,6 +25,29 @@ namespace Dlink
 		return i;
 	}
 
+	int P_scope(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list)
+	{
+		int i = 0, t;
+		auto scope = std::make_shared<Scope>();
+
+		while (true)
+		{
+			std::shared_ptr<Statement> sub_stmt;
+			if (begin + i != end && (t = P_func_decl(begin + i, end, sub_stmt, e_list)) >= 0)
+			{
+				i += t;
+				scope->statements.push_back(sub_stmt);
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		out = scope;
+		return i;
+	}
+
 	int P_func_decl(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list)
 	{
 		int i = 0, t;
@@ -271,27 +294,27 @@ namespace Dlink
 	{
 		int i = 0, t;
 
-		if(begin[i].type == TokenType::_if)
+		if (begin[i].type == TokenType::_if)
 		{
 			i++;
 
-			if(begin + i != end && begin[i].type == TokenType::lparen)
+			if (begin + i != end && begin[i].type == TokenType::lparen)
 			{
 				i++;
-				
+
 				std::shared_ptr<Expression> cond_expr;
 				if ((t = P_expr(begin + i, end, cond_expr, e_list)) > 0)
 				{
 					i += t;
-				
-					if(begin + i != end && begin[i].type == TokenType::rparen)
+
+					if (begin + i != end && begin[i].type == TokenType::rparen)
 					{
 						i++;
-						
-						if(begin + i != end /* && begin[i].type == TokenType::lbrace */)
+
+						if (begin + i != end /* && begin[i].type == TokenType::lbrace */)
 						{
 							bool no_brace = false;
-							if(begin[i].type == TokenType::lbrace) 
+							if (begin[i].type == TokenType::lbrace)
 							{
 								i++;
 							}
@@ -299,37 +322,37 @@ namespace Dlink
 							{
 								no_brace = true;
 							}
-							
-							if(begin + i != end)
+
+							if (begin + i != end)
 							{
 								std::shared_ptr<Statement> true_body;
-								
-								if(!no_brace)
+
+								if (!no_brace)
 								{
-									t = P_block(begin + i, end, true_body, e_list);
+									t = P_scope(begin + i, end, true_body, e_list);
 								}
 								else
 								{
-									t = P_func_decl(begin + i, end, true_body, e_list);
+									t = P_scope(begin + i, end, true_body, e_list); // asdf func
 								}
 
 								i += t;
-								
-								if(begin + i != end && (no_brace || begin[i].type == TokenType::rbrace))
+
+								if (begin + i != end && (no_brace || begin[i].type == TokenType::rbrace))
 								{
-									if(!no_brace)
+									if (!no_brace)
 									{
 										i++;
 									}
-									
-									if(begin + i != end && begin[i].type == TokenType::_else)
+
+									if (begin + i != end && begin[i].type == TokenType::_else)
 									{
 										i++;
-										
-										if(begin + i != end /* && begin[i].type == TokenType::lbrace */)
+
+										if (begin + i != end /* && begin[i].type == TokenType::lbrace */)
 										{
 											bool no_brace2 = false;
-											if(begin[i].type == TokenType::lbrace) 
+											if (begin[i].type == TokenType::lbrace)
 											{
 												i++;
 											}
@@ -338,24 +361,24 @@ namespace Dlink
 												no_brace2 = true;
 											}
 
-											if(begin + i != end)
-											{ 
+											if (begin + i != end)
+											{
 												std::shared_ptr<Statement> false_body;
-												
-												if(!no_brace2)
+
+												if (!no_brace2)
 												{
-													t = P_block(begin + i, end, false_body, e_list);
+													t = P_scope(begin + i, end, false_body, e_list);
 												}
 												else
 												{
-													t = P_func_decl(begin + i, end, false_body, e_list);
+													t = P_scope(begin + i, end, false_body, e_list); // asdf func 2
 												}
 
 												i += t;
-												
-												if(begin + i != end && (no_brace2 || begin[i].type == TokenType::rbrace))
+
+												if (begin + i != end && (no_brace2 || begin[i].type == TokenType::rbrace))
 												{
-													if(!no_brace2)
+													if (!no_brace2)
 													{
 														i++;
 													}
@@ -363,7 +386,7 @@ namespace Dlink
 													out = std::make_shared<IfElse>(cond_expr, true_body, false_body);
 													return i;
 												}
-												else 
+												else
 												{
 													e_list.push_back(Error("Expected '}' after block", begin[i - t].line));
 													return -1;
@@ -375,7 +398,7 @@ namespace Dlink
 												return -1;
 											}
 										}
-										else 
+										else
 										{
 											e_list.push_back(Error("Expected '{' after 'else'", begin[i - 1].line));
 											return -1;

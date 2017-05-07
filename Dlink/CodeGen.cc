@@ -19,12 +19,32 @@ namespace Dlink
 {
 	llvm::Value* Block::code_gen()
 	{
-		llvm::Value* last_value;
-		for(auto statement : statements)
+		llvm::Value* last_value = nullptr;
+		for (auto statement : statements)
 		{
 			last_value = statement->code_gen();
 		}
-		
+
+		return last_value;
+	}
+
+	llvm::Value* Scope::code_gen()
+	{
+		llvm::Value* last_value = nullptr;
+		std::vector<std::shared_ptr<VariableDeclaration>> vars;
+		for (auto statement : statements)
+		{
+			last_value = statement->code_gen();
+			if (dynamic_cast<VariableDeclaration*>(statement.get()))
+			{
+				vars.push_back(
+					std::dynamic_pointer_cast<VariableDeclaration, Statement>(statement));
+			}
+		}
+		for (auto var : vars)
+		{
+			sym_map.erase(sym_map.find(var->id.id.data));
+		}
 		return last_value;
 	}
 
@@ -35,17 +55,17 @@ namespace Dlink
 
 	llvm::Value* VariableDeclaration::code_gen()
 	{
-		llvm::AllocaInst* alloca = builder.CreateAlloca(type->get_type(), nullptr, id.id.data);	
-		alloca->setAlignment(4);	
+		llvm::AllocaInst* alloca = builder.CreateAlloca(type->get_type(), nullptr, id.id.data);
+		alloca->setAlignment(4);
 
-		if(expression != nullptr)
+		if (expression != nullptr)
 		{
 			llvm::Value* init_expression = expression->code_gen();
-			builder.CreateStore(init_expression, alloca);	
+			builder.CreateStore(init_expression, alloca);
 		}
 
 		sym_map[id.id.data] = alloca;
-		
+
 		return alloca;
 	}
 
@@ -57,16 +77,16 @@ namespace Dlink
 	llvm::Value* FunctionDeclaration::code_gen()
 	{
 		std::vector<llvm::Type * > arg_types;
-		for(const VariableDeclaration& argument : arg_list)
+		for (const VariableDeclaration& argument : arg_list)
 		{
 			arg_types.push_back(argument.type->get_type());
 		}
-		
+
 		llvm::FunctionType* function_type = llvm::FunctionType::get(ret_type->get_type(), arg_types, false);
 		llvm::Function* function = llvm::Function::Create(function_type, llvm::GlobalValue::ExternalLinkage, id.id.data, module.get());
 
 		std::size_t i = 0;
-		for(auto& argument : function->args())
+		for (auto& argument : function->args())
 		{
 			argument.setName(arg_list[i++].id.id.data);
 		}
@@ -76,12 +96,12 @@ namespace Dlink
 		builder.SetInsertPoint(function_block);
 		sym_map.clear();
 
-		for(auto& argument : function->args())
+		for (auto& argument : function->args())
 		{
 			sym_map[argument.getName()] = &argument;
 		}
 
-		if(llvm::ReturnInst* ret_inst = llvm::dyn_cast<llvm::ReturnInst>(body->code_gen()))
+		if (llvm::ReturnInst* ret_inst = llvm::dyn_cast<llvm::ReturnInst>(body->code_gen()))
 		{
 			return function;
 		}
@@ -101,12 +121,12 @@ namespace Dlink
 	{
 		llvm::Function* parent_func = builder.GetInsertBlock()->getParent();
 
-		llvm::BasicBlock* if_block;   		
-		llvm::BasicBlock* then_block; 		
-		llvm::BasicBlock* else_block; 
+		llvm::BasicBlock* if_block;
+		llvm::BasicBlock* then_block;
+		llvm::BasicBlock* else_block;
 		llvm::BasicBlock* endif_block;
 
-		if(false_body != nullptr)
+		if (false_body != nullptr)
 		{
 			if_block = llvm::BasicBlock::Create(context, "if", parent_func);
 			then_block = llvm::BasicBlock::Create(context, "then", parent_func);
@@ -125,10 +145,10 @@ namespace Dlink
 
 		llvm::Value* cond_value = cond_expr->code_gen();
 		llvm::Value* cond_cmp = builder.CreateICmpEQ(cond_value, llvm::ConstantInt::get(cond_value->getType(), 1, true), "branch");
-		
-		if(false_body != nullptr)
+
+		if (false_body != nullptr)
 		{
-			
+
 			builder.CreateCondBr(cond_cmp, then_block, else_block);
 			builder.SetInsertPoint(then_block);
 			true_body->code_gen();
@@ -146,7 +166,7 @@ namespace Dlink
 			builder.CreateBr(endif_block);
 			builder.SetInsertPoint(endif_block);
 		}
-		
+
 		return cond_cmp;
 	}
 
@@ -163,7 +183,7 @@ namespace Dlink
 	{
 		return builder.getInt32(data);
 	}
-	
+
 	llvm::Value* Float::code_gen()
 	{
 		return llvm::ConstantFP::get(builder.getFloatTy(), data);
@@ -177,13 +197,13 @@ namespace Dlink
 	llvm::Value* Identifier::code_gen()
 	{
 		llvm::Value* value = sym_map[id.data];
-		if(!value)
+		if (!value)
 		{
 			code_gen_errors.push_back(Error("Undefined symbol \"" + id.data + "\"", line));
 			return builder.getFalse();
 		}
-		
-		if(value->getType()->isPointerTy())
+
+		if (value->getType()->isPointerTy())
 		{
 			return builder.CreateLoad(value);
 		}
@@ -196,13 +216,13 @@ namespace Dlink
 	llvm::Value* UnaryOP::code_gen()
 	{
 		llvm::Value* rhs_value = rhs->code_gen();
-		
-		switch(op.type)
+
+		switch (op.type)
 		{
 		case TokenType::bit_not:
 			return builder.CreateNot(rhs_value);
 		case TokenType::plus:
-			return builder.CreateAdd(builder.getInt32(0), rhs_value);	
+			return builder.CreateAdd(builder.getInt32(0), rhs_value);
 		case TokenType::minus:
 			return builder.CreateSub(builder.getInt32(0), rhs_value);
 		case TokenType::pre_inc:
@@ -219,7 +239,7 @@ namespace Dlink
 			return builder.CreateAdd(rhs_value, builder.getInt32(1));
 		default:
 			code_gen_errors.push_back(Error("Undefined unary operator", line));
-			return builder.getFalse();	
+			return builder.getFalse();
 		}
 	}
 
@@ -271,15 +291,15 @@ namespace Dlink
 	llvm::Value* FuncCall::code_gen()
 	{
 		llvm::Function* function = module->getFunction(id.id.data);
-		
-		if(!function)
+
+		if (!function)
 		{
 			code_gen_errors.push_back(Error("Undefined function \"" + id.id.data + "\"", line));
 			return builder.getFalse();
 		}
 
 		std::vector<llvm::Value*> args_value;
-		for(std::shared_ptr<Expression> arg : args)
+		for (std::shared_ptr<Expression> arg : args)
 		{
 			args_value.push_back(arg->code_gen());
 		}
@@ -293,14 +313,14 @@ namespace Dlink
 {
 	llvm::Type* IdentifierType::get_type()
 	{
-		if(id.id.data == "bool" ||
-		   id.id.data == "byte") return builder.getInt8Ty();
-		else if(id.id.data == "short") return builder.getInt16Ty();
-		else if(id.id.data == "int") return builder.getInt32Ty();
-		else if(id.id.data == "long") return builder.getInt64Ty();
-		else if(id.id.data == "half") return builder.getHalfTy();
-		else if(id.id.data == "float") return builder.getFloatTy();
-		else if(id.id.data == "double") return builder.getDoubleTy();
+		if (id.id.data == "bool" ||
+			id.id.data == "byte") return builder.getInt8Ty();
+		else if (id.id.data == "short") return builder.getInt16Ty();
+		else if (id.id.data == "int") return builder.getInt32Ty();
+		else if (id.id.data == "long") return builder.getInt64Ty();
+		else if (id.id.data == "half") return builder.getHalfTy();
+		else if (id.id.data == "float") return builder.getFloatTy();
+		else if (id.id.data == "double") return builder.getDoubleTy();
 		else return builder.getVoidTy();
 	}
 }

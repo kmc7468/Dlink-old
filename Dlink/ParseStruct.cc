@@ -73,6 +73,21 @@ namespace Dlink
 		return tree;
 	}
 
+	std::string Scope::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
+	{
+		std::string tree = std::string(depth * 6, ' ') + "Scope Begin\n";
+		depth++;
+
+		for (auto statement : statements)
+		{
+			tree += statement->tree_gen(depth, tokentype_map) + "\n";
+		}
+
+		depth--;
+		tree += std::string(depth * 6, ' ') + "End Scope";
+		return tree;
+	}
+
 	std::string VariableDeclaration::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map)
 	{
 		std::string tree = std::string(depth*6, ' ') + "Variable Decl Begin\n";		

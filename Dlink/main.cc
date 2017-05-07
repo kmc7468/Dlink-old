@@ -16,18 +16,21 @@ namespace dl = Dlink;
 
 int main(int argc, char* argv[])
 {
-	/* 
+	/*
 	if (!dl::Dlink::parse_command_line(argc, argv))
 	{
 		return 0;
 	}
 	*/
-	
+
 	std::string code = R"(
 		int is_even(int n)
 		{
-			if(n % 2 == 0) return 1;
-			else return 0;
+			if(n % 2 == 0)
+				int a = 5;
+			else
+				int b = 3;
+			return a;
 		}
 
 		int main()
@@ -60,7 +63,7 @@ int main(int argc, char* argv[])
 		{
 			error.print(std::cerr);
 		}
-	
+
 	}
 	else if (ret == -1) //If parsing failed at first try
 	{
@@ -77,15 +80,15 @@ int main(int argc, char* argv[])
 		std::clog << "Parsing succeed\n";
 		errors.clear();
 		std::clog << stmt->tree_gen(0, dl::tokentype_map) << std::endl;
-		
+
 		llvm::FunctionType *puts_type = llvm::FunctionType::get(dl::builder.getInt32Ty(), dl::builder.getInt8PtrTy(), false);
 		llvm::Constant* puts_func = dl::module->getOrInsertFunction("puts", puts_type); //DELME : This is temporary function to test "Hello, World!" example; delete this line and previous line when they are no longer needed
 
 		stmt->code_gen();
-		
-		if(!dl::code_gen_errors.empty())
+
+		if (!dl::code_gen_errors.empty())
 		{
-			for(dl::Error error : dl::code_gen_errors)
+			for (dl::Error error : dl::code_gen_errors)
 			{
 				error.print(std::cerr);
 			}
@@ -94,8 +97,8 @@ int main(int argc, char* argv[])
 		{
 			dl::module->dump();
 
-			std::error_code err_code; 
-			llvm::raw_fd_ostream output("output.ll", err_code, llvm::sys::fs::F_None); 
+			std::error_code err_code;
+			llvm::raw_fd_ostream output("output.ll", err_code, llvm::sys::fs::F_None);
 			dl::module->print(output, nullptr);
 		}
 	}
