@@ -18,12 +18,12 @@ namespace dl = Dlink;
 
 int main(int argc, char* argv[])
 {
-	/*
+	
 	if (!dl::Dlink::parse_command_line(argc, argv))
 	{
 		return 0;
 	}
-	*/
+	
 	
 	dl::InitializePassManager();
 
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 			{
 				a = 0;
 			}
-			return a;
+			return 0;
 		}
 	)";
 

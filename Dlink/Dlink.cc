@@ -7,6 +7,7 @@ namespace Dlink
 {
 	std::string Dlink::startup_path;
 	std::vector<std::string> Dlink::input_files;
+	std::string Dlink::output_file;
 	int Dlink::optimization_level = 0;
 
 	bool Dlink::parse_command_line(int argc, char* argv[])
@@ -77,6 +78,7 @@ namespace Dlink
 	bool Dlink::parse_command_line_default(int argc, char* argv[])
 	{
 		bool _O = false;
+		bool _o = false;
 
 		for (int i = 1; i < argc; ++i)
 		{
@@ -99,29 +101,66 @@ namespace Dlink
 					std::cout << "Error: Can not use " << cmdline << " here.\n";
 					return false;
 				}
-
-				else if (cmdline.substr(0, 2) == "-O")
-				{
-					if (_O)
-					{
-						std::cout << "Error: Optimization options can only be used once."
-							<< std::endl;
-						return false;
-					}
-					_O = true;
-					optimization_level = std::stoi(cmdline.substr(2));
-				}
-				
 				else
 				{
-					std::cout << "Error: " << cmdline << " is unknown option.\n";
-					return false;
+					std::string front = cmdline.substr(0, 2);
+
+					if (front == "-O")
+					{
+						if (_O)
+						{
+							std::cout << "Error: Optimization options can only be used once."
+								<< std::endl;
+							return false;
+						}
+						_O = true;
+						optimization_level = std::stoi(cmdline.substr(2));
+					}
+					else if (cmdline == "-o")
+					{
+						if (_o)
+						{
+							std::cout << "Error: The output file path option"
+								" can only be used once." << std::endl;
+							return false;
+						}
+						_o = true;
+						++i;
+						if (i == argc)
+						{
+							std::cout << "Error: There is no argument for -o." << std::endl;
+							return false;
+						}
+						else if (std::string(argv[i]).front() == '-')
+						{
+							std::cout << "Error: The argument to -o can not be an option."
+								<< std::endl;
+							return false;
+						}
+						else
+						{
+							output_file = argv[i];
+						}
+					}
+
+					else
+					{
+						std::cout << "Error: " << cmdline << " is unknown option.\n";
+						return false;
+					}
 				}
 			}
 			else
 			{
 				input_files.push_back(cmdline);
 			}
+		}
+
+		if (input_files.size() == 0 &&
+			(_o || _O))
+		{
+			std::cout << "Error: No input files." << std::endl;
+			return false;
 		}
 
 		return true;

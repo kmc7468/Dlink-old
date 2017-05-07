@@ -10,6 +10,7 @@ namespace Dlink
 	public:
 		static std::string startup_path;
 		static std::vector<std::string> input_files;
+		static std::string output_file;
 		static int optimization_level;
 
 	public:
