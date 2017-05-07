@@ -170,9 +170,12 @@ namespace Dlink
 		const Identifier id;
 		const std::vector<VariableDeclaration> arg_list;
 		std::shared_ptr<Statement> body;
+		const bool is_dynamic_method;
 
-		FunctionDeclaration(std::shared_ptr<Type> _ret_type, const Identifier& _id, const std::vector<VariableDeclaration>& _arg_list, std::shared_ptr<Statement> _body)
-			: ret_type(_ret_type), id(_id), arg_list(_arg_list), body(_body)
+		FunctionDeclaration(std::shared_ptr<Type> _ret_type, const Identifier& _id, const std::vector<VariableDeclaration>& _arg_list, std::shared_ptr<Statement> _body,
+							bool _is_dynamic_method = false)
+			: ret_type(_ret_type), id(_id), arg_list(_arg_list), body(_body),
+			is_dynamic_method(_is_dynamic_method)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;

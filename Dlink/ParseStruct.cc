@@ -110,6 +110,8 @@ namespace Dlink
 		std::string tree = std::string(depth * 6, ' ') + "Function Decl Begin\n";
 		tree += std::string(depth * 6, ' ') + "Return Type : \n";
 		tree += ret_type->tree_gen(depth + 1, tokentype_map) + "\n";
+		tree += std::string(depth * 6, ' ') + "Is Dynamic Method : " +
+			(is_dynamic_method ? "True" : "False") + '\n';
 		tree += std::string(depth * 6, ' ') + "Name : " + id.id.data + "\n";
 
 		tree += std::string(depth * 6, ' ') + "Arguments : \n";

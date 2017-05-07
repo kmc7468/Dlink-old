@@ -102,7 +102,7 @@ namespace Dlink
 			llvm::AllocaInst* alloca_inst = builder.CreateAlloca(argument.getType(), &argument);
 			sym_map[argument.getName()] = alloca_inst;
 		}
-		
+
 		llvm::ReturnInst* ret_inst = llvm::dyn_cast<llvm::ReturnInst>(body->code_gen());
 		if (!ret_inst)
 		{
@@ -116,7 +116,22 @@ namespace Dlink
 
 	llvm::Value* ClassDeclaration::code_gen()
 	{
-		return nullptr; // TODO
+		llvm::StructType* struct_inst =
+			llvm::StructType::create(module->getContext(),
+									 std::string("struct") + id.id.data);
+		std::vector<llvm::Type*> f;
+
+		for (const auto& f_i : fields)
+		{
+			f.push_back(f_i.type->get_type());
+		}
+
+		if (struct_inst->isOpaque())
+		{
+			struct_inst->setBody(f, false);
+		}
+
+		return nullptr;
 	}
 
 	llvm::Value* Return::code_gen()
@@ -253,7 +268,7 @@ namespace Dlink
 		case TokenType::equal:
 		{
 			llvm::LoadInst* load_inst = dynamic_cast<llvm::LoadInst*>(lhs_value);
-			if(!load_inst)
+			if (!load_inst)
 			{
 				code_gen_errors.push_back(Error("Expected lvalue for left hand side of assignment operation", line));
 				return nullptr;
