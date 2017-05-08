@@ -66,8 +66,14 @@ int main(int argc, char* argv[])
 		errors.clear();
 		std::clog << stmt->tree_gen(0, dl::tokentype_map) << std::endl;
 
+		/* DELME BEGIN */
+
 		llvm::FunctionType *puts_type = llvm::FunctionType::get(dl::builder.getInt32Ty(), dl::builder.getInt8PtrTy(), false);
-		llvm::Constant* puts_func = dl::module->getOrInsertFunction("puts", puts_type); //DELME : This is temporary function to test "Hello, World!" example; delete this line and previous line when they are no longer needed
+		llvm::Constant* puts_func = dl::module->getOrInsertFunction("puts", puts_type);
+		llvm::FunctionType *printf_type = llvm::FunctionType::get(dl::builder.getInt32Ty(), dl::builder.getInt8PtrTy(), true);
+		llvm::Constant* printf_func = dl::module->getOrInsertFunction("printf", printf_type);
+
+		/* DELME END */
 
 		stmt->code_gen();
 
