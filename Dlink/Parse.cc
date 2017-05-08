@@ -2,6 +2,11 @@
 
 namespace Dlink
 {
+	std::vector<std::shared_ptr<ClassType>> classes;
+}
+
+namespace Dlink
+{
 	int P_block(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list)
 	{
 		int i = 0, t;
@@ -278,7 +283,7 @@ namespace Dlink
 		{
 			std::vector<MethodDeclaration> methods;
 			std::vector<FieldDeclaration> fields;
-			
+
 			i++;
 			Identifier id(begin[i]);
 
@@ -306,8 +311,10 @@ namespace Dlink
 					}
 					else if (begin[i].type == TokenType::rbrace)
 					{
-						out = std::make_shared<ClassDeclaration>(id, fields,
+						auto cls_t = std::make_shared<ClassType>(id, fields,
 																 methods);
+						out = cls_t;
+						classes.push_back(cls_t);
 
 						return ++i;
 					}
@@ -1409,6 +1416,16 @@ namespace Dlink
 	{
 		if (begin[0].type == TokenType::identifier)
 		{
+			for (const auto& c : classes)
+			{
+				if (c->id.id.data == begin[0].data)
+				{
+					out = c;
+					out->line = begin[0].line;
+					return 1;
+				}
+			}
+
 			out = std::make_shared<IdentifierType>(begin[0]);
 			out->line = begin[0].line;
 			return 1;
