@@ -221,20 +221,6 @@ namespace Dlink
 		llvm::Value* code_gen() override;
 	};
 
-	struct ClassDeclaration : public Statement
-	{
-		const Identifier id;
-		const std::vector<FieldDeclaration> fields;
-		const std::vector<MethodDeclaration> methods;
-
-		ClassDeclaration(const Identifier& _id, const std::vector<FieldDeclaration>& _fields,
-						 const std::vector<MethodDeclaration>& _methods)
-			: id(_id), fields(_fields), methods(_methods)
-		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
-		llvm::Value* code_gen() override;
-	};
-
 	struct Return : public Statement
 	{
 		std::shared_ptr<Expression> ret_expr;
@@ -280,5 +266,28 @@ namespace Dlink
 
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Type* get_type() override;
+	};
+	struct ClassType : public Statement, public IdentifierType
+	{
+		const std::vector<FieldDeclaration> fields;
+		const std::vector<MethodDeclaration> methods;
+
+		ClassType(const Identifier& _id, const std::vector<FieldDeclaration>& _fields,
+						 const std::vector<MethodDeclaration>& _methods)
+			: IdentifierType(_id), fields(_fields), methods(_methods)
+		{
+			code_gen_internal();
+		}
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
+		llvm::Type* get_type() override;
+		llvm::Value* code_gen() override
+		{
+			return nullptr;
+		}
+
+	private:
+		llvm::Type* class_ = nullptr;
+
+		void code_gen_internal();
 	};
 }

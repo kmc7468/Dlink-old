@@ -274,3 +274,6 @@ tags
 
 # LLVM IR file
 *.ll
+
+# Etc
+/Dlink/test.txt

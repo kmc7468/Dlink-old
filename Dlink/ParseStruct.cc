@@ -164,27 +164,6 @@ namespace Dlink
 		return tree;
 	}
 
-	std::string ClassDeclaration::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
-	{
-		std::string tree = std::string(depth * 6, ' ') + "Class Decl Begin\n";
-		tree += std::string(depth * 6, ' ') + "Name : " + id.id.data + '\n';
-
-		tree += std::string(depth * 6, ' ') + "Non-Static Methods : \n";
-		for (const auto& m : methods)
-		{
-			tree += m.tree_gen(depth + 1, tokentype_map) + '\n';
-		}
-		
-		tree += std::string(depth * 6, ' ') + "Non-Static Fields : \n";
-		for (const auto& f : fields)
-		{
-			tree += f.tree_gen(depth + 1, tokentype_map) + '\n';
-		}
-
-		tree += std::string(depth * 6, ' ') + "End Class Decl";
-		return tree;
-	}
-
 	std::string Return::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		std::string tree = std::string(depth * 6, ' ') + "Return : \n";
@@ -222,5 +201,25 @@ namespace Dlink
 	std::string IdentifierType::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		return std::string(depth * 6, ' ') + "IdentifierType(" + id.id.data + ")";
+	}
+	std::string ClassType::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
+	{
+		std::string tree = std::string(depth * 6, ' ') + "Class Decl Begin\n";
+		tree += std::string(depth * 6, ' ') + "Name : " + id.id.data + '\n';
+
+		tree += std::string(depth * 6, ' ') + "Non-Static Methods : \n";
+		for (const auto& m : methods)
+		{
+			tree += m.tree_gen(depth + 1, tokentype_map) + '\n';
+		}
+
+		tree += std::string(depth * 6, ' ') + "Non-Static Fields : \n";
+		for (const auto& f : fields)
+		{
+			tree += f.tree_gen(depth + 1, tokentype_map) + '\n';
+		}
+
+		tree += std::string(depth * 6, ' ') + "End Class Decl";
+		return tree;
 	}
 }

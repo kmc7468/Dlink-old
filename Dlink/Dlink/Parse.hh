@@ -9,6 +9,8 @@
 namespace Dlink
 {
 	using TokenIter = std::vector<Token>::iterator;
+
+	extern std::vector<std::shared_ptr<ClassType>> classes;
 }
 
 //Statements

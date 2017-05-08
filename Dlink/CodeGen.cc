@@ -121,24 +121,6 @@ namespace Dlink
 		return nullptr;
 	}
 
-	llvm::Value* ClassDeclaration::code_gen()
-	{
-		llvm::StructType* struct_inst =
-			llvm::StructType::create(module->getContext(),
-									 std::string("struct@") + id.id.data);
-	
-		std::vector<llvm::Type*> f;
-
-		for (const auto& f_i : fields)
-		{
-			f.push_back(f_i.type->get_type());
-		}
-
-		struct_inst->setBody(f, false);
-
-		return nullptr;
-	}
-
 	llvm::Value* Return::code_gen()
 	{
 		return builder.CreateRet(ret_expr->code_gen());
@@ -353,5 +335,26 @@ namespace Dlink
 		else if (id.id.data == "float") return builder.getFloatTy();
 		else if (id.id.data == "double") return builder.getDoubleTy();
 		else return builder.getVoidTy();
+	}
+	llvm::Type* ClassType::get_type()
+	{
+		return class_;
+	}
+	void ClassType::code_gen_internal()
+	{
+		llvm::StructType* struct_type =
+			llvm::StructType::create(module->getContext(),
+									 std::string("struct@") + id.id.data);
+
+		std::vector<llvm::Type*> f;
+
+		for (const auto& f_i : fields)
+		{
+			f.push_back(f_i.type->get_type());
+		}
+
+		struct_type->setBody(f, false);
+
+		class_ = struct_type;
 	}
 }
