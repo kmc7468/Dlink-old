@@ -220,28 +220,28 @@ namespace Dlink
 				{
 					Identifier name(begin[i]);
 					i++;
-					
+
 					std::shared_ptr<Expression> init_expr;
-					if(begin + i != end && begin[i].type == TokenType::equal)
+					if (begin + i != end && begin[i].type == TokenType::equal)
 					{
 						i++;
 
-						if(begin + i != end && (t = P_expr(begin + i, end, init_expr, e_list)) > 0)
+						if (begin + i != end && (t = P_expr(begin + i, end, init_expr, e_list)) > 0)
 						{
 							i += t;
 						}
 						else
 						{
-							e_list.push_back(Error("Expected expression after '='", begin[i-1].line));
+							e_list.push_back(Error("Expected expression after '='", begin[i - 1].line));
 							return -1;
 						}
 					}
 
-					if(begin + i != end && begin[i].type == TokenType::comma)
+					if (begin + i != end && begin[i].type == TokenType::comma)
 					{
 						i++;
 
-						if(init_expr != nullptr)
+						if (init_expr != nullptr)
 						{
 							auto decl = std::make_shared<VariableDeclaration>(type_expr, name, init_expr);
 							decls.push_back(decl);
@@ -252,11 +252,11 @@ namespace Dlink
 							decls.push_back(decl);
 						}
 					}
-					else if(begin + i != end && begin[i].type == TokenType::semicolon)
+					else if (begin + i != end && begin[i].type == TokenType::semicolon)
 					{
 						i++;
 
-						if(init_expr != nullptr)
+						if (init_expr != nullptr)
 						{
 							auto decl = std::make_shared<VariableDeclaration>(type_expr, name, init_expr);
 							decls.push_back(decl);
@@ -275,19 +275,19 @@ namespace Dlink
 					}
 					else
 					{
-						e_list.push_back(Error("Expected ',' or ';'", begin[i-1].line));
+						e_list.push_back(Error("Expected ',' or ';'", begin[i - 1].line));
 						return -1;
 					}
 				}
-				
-				if(begin + i != end)
+
+				if (begin + i != end)
 				{
 					e_list.push_back(Error("Expected identifier", begin[i].line));
 					return -1;
 				}
 				else
 				{
-					e_list.push_back(Error("Unexpected end of token", begin[i-t].line));
+					e_list.push_back(Error("Unexpected end of token", begin[i - t].line));
 					return -1;
 				}
 			}
@@ -356,24 +356,30 @@ namespace Dlink
 					t = P_func_decl(begin + i, end, out_temp, e_list);
 					i += t - 1;
 
-					if (dynamic_cast<FunctionDeclaration*>(out_temp.get()))
-					{
-						// TODO
-					}
-					else if (dynamic_cast<VariableDeclaration*>(out_temp.get()))
-					{
-						std::shared_ptr<VariableDeclaration> fd =
-							std::dynamic_pointer_cast<VariableDeclaration>(out_temp);
+					std::shared_ptr<Block> out_cast =
+						std::dynamic_pointer_cast<Block>(out_temp);
 
-						FieldDeclaration f(
-							fd->type, fd->id, fd->expression, true, m
-						);
-						fields.push_back(f);
-					}
-					else
+					for (const auto& s : out_cast->statements)
 					{
-						e_list.push_back(Error("Expected only declare variables or functions.", begin[i - 1].line));
-						return -1;
+						if (dynamic_cast<FunctionDeclaration*>(s.get()))
+						{
+							// TODO
+						}
+						else if (dynamic_cast<VariableDeclaration*>(s.get()))
+						{
+							std::shared_ptr<VariableDeclaration> fd =
+								std::dynamic_pointer_cast<VariableDeclaration>(s);
+
+							FieldDeclaration f(
+								fd->type, fd->id, fd->expression, true, m
+							);
+							fields.push_back(f);
+						}
+						else
+						{
+							e_list.push_back(Error("Expected only declare variables or functions.", begin[i - 1].line));
+							return -1;
+						}
 					}
 				}
 			}
