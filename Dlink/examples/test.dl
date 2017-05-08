@@ -9,12 +9,8 @@ int is_even(int number)
 
 int main()
 {
-	int a = 10;
-	{
-		int a = 5;
+	int a = 2, b = 7, c = 3;
+		
 
-		a = 7;
-	}
-
-	return a;
+	return a*b*c;
 }

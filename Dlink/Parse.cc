@@ -209,47 +209,80 @@ namespace Dlink
 
 			if (begin + i != end && begin[i].type == TokenType::identifier)
 			{
-				Identifier name(begin[i]);
-				i++;
+				std::vector<std::shared_ptr<Statement>> decls;
 
-				if (begin + i != end && begin[i].type == TokenType::semicolon)
+				while (begin + i != end && begin[i].type == TokenType::identifier)
 				{
+					Identifier name(begin[i]);
 					i++;
-					out = std::make_shared<VariableDeclaration>(type_expr, name);
-					out->line = begin[i - 1].line;
-					return i;
-				}
-				else if (begin + i != end && begin[i].type == TokenType::equal)
-				{
-					i++;
-
+					
 					std::shared_ptr<Expression> init_expr;
-					if (begin + i != end && (t = P_expr(begin + i, end, init_expr, e_list)) >= 0)
+					if(begin + i != end && begin[i].type == TokenType::equal)
 					{
-						i += t;
+						i++;
 
-						if (begin + i != end && begin[i].type == TokenType::semicolon)
+						if(begin + i != end && (t = P_expr(begin + i, end, init_expr, e_list)) > 0)
 						{
-							i++;
-							out = std::make_shared<VariableDeclaration>(type_expr, name, init_expr);
-							out->line = begin[i - 1].line;
-							return i;
+							i += t;
 						}
 						else
 						{
-							e_list.push_back(Error("Expected ';' after expression", begin[i - t].line));
+							e_list.push_back(Error("Expected expression after '='", begin[i-1].line));
 							return -1;
 						}
 					}
+
+					if(begin + i != end && begin[i].type == TokenType::comma)
+					{
+						i++;
+
+						if(init_expr != nullptr)
+						{
+							auto decl = std::make_shared<VariableDeclaration>(type_expr, name, init_expr);
+							decls.push_back(decl);
+						}
+						else
+						{
+							auto decl = std::make_shared<VariableDeclaration>(type_expr, name);
+							decls.push_back(decl);
+						}
+					}
+					else if(begin + i != end && begin[i].type == TokenType::semicolon)
+					{
+						i++;
+
+						if(init_expr != nullptr)
+						{
+							auto decl = std::make_shared<VariableDeclaration>(type_expr, name, init_expr);
+							decls.push_back(decl);
+						}
+						else
+						{
+							auto decl = std::make_shared<VariableDeclaration>(type_expr, name);
+							decls.push_back(decl);
+						}
+
+						auto decl_block = std::make_shared<Block>();
+						decl_block->statements = decls;
+
+						out = decl_block;
+						return i;
+					}
 					else
 					{
-						e_list.push_back(Error("Expected expression after '='", begin[i - 1].line));
+						e_list.push_back(Error("Expected ',' or ';'", begin[i-1].line));
 						return -1;
 					}
 				}
+				
+				if(begin + i != end)
+				{
+					e_list.push_back(Error("Expected identifier", begin[i].line));
+					return -1;
+				}
 				else
 				{
-					e_list.push_back(Error("Expected semicolon or '=' after identifier", begin[i - 1].line));
+					e_list.push_back(Error("Unexpected end of token", begin[i-t].line));
 					return -1;
 				}
 			}
