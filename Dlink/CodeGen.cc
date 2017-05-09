@@ -11,6 +11,7 @@ namespace Dlink
 	llvm::IRBuilder<> builder(context);
 	std::unique_ptr<llvm::legacy::FunctionPassManager> func_pm;
 	std::map<std::string, llvm::Value*> sym_map;
+	std::map<std::string, std::shared_ptr<ClassType>> classes;
 
 	ErrorList code_gen_errors;
 }
@@ -117,6 +118,25 @@ namespace Dlink
 	llvm::Value* MethodDeclaration::code_gen()
 	{
 		// TODO
+
+		return nullptr;
+	}
+
+	llvm::Value* ClassDeclaration::code_gen()
+	{
+		llvm::StructType* struct_type =
+			llvm::StructType::create(module->getContext(), id.id.data);
+
+		std::vector<llvm::Type*> f;
+
+		for (const auto& f_i : fields)
+		{
+			f.push_back(f_i.type->get_type());
+		}
+
+		struct_type->setBody(f, false);
+
+		classes[id.id.data]->type = struct_type;
 
 		return nullptr;
 	}
@@ -335,26 +355,5 @@ namespace Dlink
 		else if (id.id.data == "float") return builder.getFloatTy();
 		else if (id.id.data == "double") return builder.getDoubleTy();
 		else return builder.getVoidTy();
-	}
-	llvm::Type* ClassType::get_type()
-	{
-		return class_;
-	}
-	void ClassType::code_gen_internal()
-	{
-		llvm::StructType* struct_type =
-			llvm::StructType::create(module->getContext(),
-									 std::string("struct@") + id.id.data);
-
-		std::vector<llvm::Type*> f;
-
-		for (const auto& f_i : fields)
-		{
-			f.push_back(f_i.type->get_type());
-		}
-
-		struct_type->setBody(f, false);
-
-		class_ = struct_type;
 	}
 }

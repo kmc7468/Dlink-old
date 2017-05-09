@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "llvm/IR/Value.h"
+#include "llvm/IR/DerivedTypes.h"
 
 #include "Token.hh"
 
@@ -221,6 +222,20 @@ namespace Dlink
 		llvm::Value* code_gen() override;
 	};
 
+	struct ClassType;
+
+	struct ClassDeclaration : public Statement
+	{
+		const Identifier id;
+		const std::vector<FieldDeclaration> fields;
+		const std::vector<MethodDeclaration> methods;
+
+		ClassDeclaration(const Identifier& _id, const std::vector<FieldDeclaration>& _fields,
+						 const std::vector<MethodDeclaration>& _methods);
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
+		llvm::Value* code_gen() override;
+	};
+
 	struct Return : public Statement
 	{
 		std::shared_ptr<Expression> ret_expr;
@@ -267,27 +282,19 @@ namespace Dlink
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Type* get_type() override;
 	};
-	struct ClassType : public Statement, public IdentifierType
+	struct ClassType : public IdentifierType
 	{
-		const std::vector<FieldDeclaration> fields;
-		const std::vector<MethodDeclaration> methods;
+		const std::vector<FieldDeclaration>& fields;
+		const std::vector<MethodDeclaration>& methods;
+		llvm::StructType* type;
 
-		ClassType(const Identifier& _id, const std::vector<FieldDeclaration>& _fields,
-						 const std::vector<MethodDeclaration>& _methods)
-			: IdentifierType(_id), fields(_fields), methods(_methods)
-		{
-			code_gen_internal();
-		}
+		ClassType(const Identifier& _id, llvm::StructType* _type, const ClassDeclaration& c)
+			: IdentifierType(_id), type(_type), fields(c.fields), methods(c.methods)
+		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
-		llvm::Type* get_type() override;
-		llvm::Value* code_gen() override
+		llvm::Type* get_type() override
 		{
-			return nullptr;
+			return type;
 		}
-
-	private:
-		llvm::Type* class_ = nullptr;
-
-		void code_gen_internal();
 	};
 }

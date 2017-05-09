@@ -1,9 +1,5 @@
 #include "Dlink/Parse.hh"
-
-namespace Dlink
-{
-	std::vector<std::shared_ptr<ClassType>> classes;
-}
+#include "Dlink/CodeGen.hh"
 
 namespace Dlink
 {
@@ -344,10 +340,8 @@ namespace Dlink
 					}
 					else if (begin[i].type == TokenType::rbrace)
 					{
-						auto cls_t = std::make_shared<ClassType>(id, fields,
-																 methods);
-						out = cls_t;
-						classes.push_back(cls_t);
+						auto cls = std::make_shared<ClassDeclaration>(id, fields, methods);
+						out = cls;
 
 						return ++i;
 					}
@@ -1457,9 +1451,9 @@ namespace Dlink
 		{
 			for (const auto& c : classes)
 			{
-				if (c->id.id.data == begin[0].data)
+				if (c.second->id.id.data == begin[0].data)
 				{
-					out = c;
+					out = c.second;
 					out->line = begin[0].line;
 					return 1;
 				}

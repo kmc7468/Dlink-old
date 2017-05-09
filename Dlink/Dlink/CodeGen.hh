@@ -11,6 +11,7 @@
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Transforms/Scalar.h"
 
+#include "ParseStruct.hh"
 #include "Error.hh"
 
 namespace Dlink
@@ -20,5 +21,6 @@ namespace Dlink
 	extern llvm::IRBuilder<> builder;
 	extern std::unique_ptr<llvm::legacy::FunctionPassManager> func_pm;
 	extern std::map<std::string, llvm::Value*> sym_map;
+	extern std::map<std::string, std::shared_ptr<ClassType>> classes;
 	extern ErrorList code_gen_errors;
 }
