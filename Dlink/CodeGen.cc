@@ -125,7 +125,7 @@ namespace Dlink
 	llvm::Value* ClassDeclaration::code_gen()
 	{
 		llvm::StructType* struct_type =
-			llvm::StructType::create(module->getContext(), id.id.data);
+			llvm::StructType::create(module->getContext(), std::string("class@") + id.id.data);
 
 		std::vector<llvm::Type*> f;
 
