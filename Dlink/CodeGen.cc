@@ -14,6 +14,10 @@ namespace Dlink
 	std::map<std::string, std::shared_ptr<ClassType>> classes;
 
 	ErrorList code_gen_errors;
+
+	llvm::ConstantInt* constant_int32_0 =
+		llvm::ConstantInt::get(module->getContext(),
+							   llvm::APInt(32, llvm::StringRef("0"), 10));
 }
 
 //Expressions
@@ -62,6 +66,7 @@ namespace Dlink
 //		if(sym_map.find(id.id.data) == sym_map.end())
 //		{
 		sym_map[id.id.data] = alloca;
+		value_ = alloca;
 		return alloca;
 //		}
 //		else
@@ -338,6 +343,31 @@ namespace Dlink
 		}
 
 		return builder.CreateCall(function, args_value);
+	}
+
+	llvm::Value* MemberAccess::code_gen()
+	{
+		std::shared_ptr<ClassType> cls_t =
+			std::dynamic_pointer_cast<ClassType>(lhs->type);
+
+		llvm::GetElementPtrInst* ptr = llvm::GetElementPtrInst::Create(
+			lhs->type->get_type(), lhs->value(), {
+				constant_int32_0,
+				llvm::ConstantInt::get(module->getContext(),
+				llvm::APInt(32, llvm::StringRef(std::to_string([&] {
+						int i = 0;
+						for (auto v = cls_t->fields.begin();
+							 v < cls_t->fields.end(); ++v, ++i)
+						{
+							if (v->id.id.data == id.id.data)
+							{
+								return i;
+							}
+						}
+					}())), 10))
+			});
+
+		return ptr;
 	}
 }
 

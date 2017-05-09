@@ -40,17 +40,28 @@ namespace Dlink
 
 	std::string FuncCall::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
-		std::string tree = std::string(depth*6, ' ') + "FuncCall\n";		
- 		depth++;		
- 		tree +=	std::string(depth*6, ' ') + "Name : " + id.id.data + "\n"; 		
- 		tree += std::string(depth*6, ' ') + "Args : \n";
+		std::string tree = std::string(depth * 6, ' ') + "FuncCall\n";
+		depth++;
+		tree += std::string(depth * 6, ' ') + "Name : " + id.id.data + "\n";
+		tree += std::string(depth * 6, ' ') + "Args : \n";
 
 		for (auto&& arg : args)
 		{
 			tree += arg->tree_gen(depth + 1, tokentype_map) + "\n";
 		}
-		
+
 		tree.pop_back();
+
+		return tree;
+	}
+
+	std::string MemberAccess::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
+	{
+		std::string tree = std::string(depth * 6, ' ') + "Member Access\n";
+		tree += "Left : \n";
+		tree += lhs->tree_gen(depth + 1, tokentype_map) + '\n';
+		tree += "Right : \n";
+		tree += rhs->tree_gen(depth + 1, tokentype_map);
 
 		return tree;
 	}
@@ -91,10 +102,10 @@ namespace Dlink
 
 	std::string VariableDeclaration::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
-		std::string tree = std::string(depth*6, ' ') + "Variable Decl Begin\n";		
- 		tree += std::string(depth*6, ' ') + "Type : \n";		
- 		tree += type->tree_gen(depth+1, tokentype_map) + "\n";		
- 		tree += std::string(depth*6, ' ') + "Name : " + id.id.data + "\n";
+		std::string tree = std::string(depth * 6, ' ') + "Variable Decl Begin\n";
+		tree += std::string(depth * 6, ' ') + "Type : \n";
+		tree += type->tree_gen(depth + 1, tokentype_map) + "\n";
+		tree += std::string(depth * 6, ' ') + "Name : " + id.id.data + "\n";
 
 		if (expression)
 		{
@@ -166,7 +177,7 @@ namespace Dlink
 	}
 
 	ClassDeclaration::ClassDeclaration(const Identifier& _id, const std::vector<FieldDeclaration>& _fields,
-					 const std::vector<MethodDeclaration>& _methods)
+									   const std::vector<MethodDeclaration>& _methods)
 		: id(_id), fields(_fields), methods(_methods)
 	{
 		classes.insert(std::make_pair(id.id.data,
@@ -208,7 +219,7 @@ namespace Dlink
 		tree += std::string(depth * 6, ' ') + "Then : \n";
 		tree += true_body->tree_gen(depth + 1, tokentype_map) + "\n";
 
-		if(false_body)
+		if (false_body)
 		{
 			tree += std::string(depth * 6, ' ') + "Else : \n";
 			tree += false_body->tree_gen(depth + 1, tokentype_map) + "\n";
