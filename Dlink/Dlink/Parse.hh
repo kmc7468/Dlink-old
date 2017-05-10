@@ -43,6 +43,7 @@ namespace Dlink
 	int P_sign_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 	int P_func_call_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 	int P_incdec_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
+	int P_member_access_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 	int P_paren_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 	int P_literal_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 }

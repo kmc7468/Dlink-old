@@ -1,16 +1,6 @@
-int is_even(int number)
-{
-	if(number % 2)
-	{
-		return 0;
-	}
-	else return 1;
-}
-
 int main()
 {
-	int a = 2, b = 7, c = 3;
-		
+	foo + bar + faz + baz = 10;
 
-	return a*b*c;
+	return a;
 }

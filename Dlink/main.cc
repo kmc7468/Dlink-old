@@ -38,6 +38,8 @@ int main(int argc, char* argv[])
 
 	std::vector<dl::Token> result = lexer.get_token_sequence();
 
+	lexer.dump(dl::tokentype_map);
+
 	std::shared_ptr<dl::Statement> stmt;
 	dl::ErrorList errors;
 	int ret = P_block(result.begin(), result.end(), stmt, errors);

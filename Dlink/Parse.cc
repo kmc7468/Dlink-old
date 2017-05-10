@@ -1290,7 +1290,7 @@ namespace Dlink
 		if (begin[i].type == TokenType::increment || begin[i].type == TokenType::decrement)
 		{
 			i++;
-			if ((t = P_paren_expr(begin + i, end, sign, e_list)) > 0) //bookmark
+			if ((t = P_member_access_expr(begin + i, end, sign, e_list)) > 0) //bookmark
 			{
 				i += t;
 			}
@@ -1314,7 +1314,7 @@ namespace Dlink
 			ret = std::make_shared<UnaryOP>(op, sign);
 			ret->line = begin[i - t].line;
 		}
-		else if ((t = P_paren_expr(begin + i, end, sign, e_list)) > 0)
+		else if ((t = P_member_access_expr(begin + i, end, sign, e_list)) > 0)
 		{
 			i += t;
 
@@ -1336,7 +1336,7 @@ namespace Dlink
 		}
 		else
 		{
-			if ((t = P_paren_expr(begin + i, end, ret, e_list)) >= 0)
+			if ((t = P_member_access_expr(begin + i, end, ret, e_list)) >= 0)
 			{
 				i += t;
 			}
@@ -1345,6 +1345,49 @@ namespace Dlink
 				return -1;
 			}
 		}
+		out = ret;
+		return i;
+	}
+
+	int P_member_access_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list)
+	{
+		if (begin == end)
+		{
+			return -1;
+		}
+
+		int i = 0, t = 0;
+
+		std::shared_ptr<Expression> ret;
+		if ((t = P_paren_expr(begin + i, end, ret, e_list)) > 0)
+		{
+			i = t;
+		}
+		else
+		{
+			return -1;
+		}
+
+		while(begin + i != end && begin[i].type == TokenType::dot)
+		{
+			i++;
+			
+			if (begin + i != end && begin[i].type == TokenType::identifier)
+			{
+				auto member = std::make_shared<Identifier>(begin[i]);
+				
+				i++;
+				
+				ret = std::make_shared<BinaryOP>(ret, begin[i-2], member);
+				ret->line = begin[i-1].line;
+			}
+			else
+			{
+				i--;
+				break;
+			}
+		}
+
 		out = ret;
 		return i;
 	}
