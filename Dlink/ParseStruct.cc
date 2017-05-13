@@ -231,6 +231,14 @@ namespace Dlink
 	{
 		return std::string(depth * 6, ' ') + "IdentifierType(" + id.id.data + ")";
 	}
+	
+	std::string ConstType::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
+	{
+		std::string tree = std::string(depth * 6, ' ') + "ConstType : \n";
+		tree += type->tree_gen(depth + 1, tokentype_map);
+		return tree;
+	}
+
 	std::string ClassType::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		return std::string(depth * 6, ' ') + "ClassType(" + id.id.data + ")";

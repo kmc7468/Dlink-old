@@ -1,6 +1,8 @@
 int main()
-{
-	foo + bar + faz + baz = 10;
+{	
+	const int a = 10;
+	
+	a = 5;
 
 	return a;
 }
