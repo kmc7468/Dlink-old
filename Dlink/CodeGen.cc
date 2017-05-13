@@ -130,7 +130,7 @@ namespace Dlink
 	llvm::Value* ClassDeclaration::code_gen()
 	{
 		llvm::StructType* struct_type =
-			llvm::StructType::create(module->getContext(), std::string("@") + id.id.data);
+			llvm::StructType::create(module->getContext(), std::string("class.") + id.id.data);
 
 		std::vector<llvm::Type*> f;
 
@@ -279,14 +279,75 @@ namespace Dlink
 		{
 		case TokenType::equal:
 		{
-			llvm::LoadInst* load_inst = dynamic_cast<llvm::LoadInst*>(lhs_value);
+			if (dynamic_cast<BinaryOP*>(lhs.get()))
+			{
+				//auto lhs_ptr = ((llvm::GetElementPtrInst*)lhs_value)->getPointerOperand();
+				builder.CreateStore(rhs_value, lhs_value);
+				return rhs_value;
+			}
+			else
+			{
+				llvm::LoadInst* load_inst = dynamic_cast<llvm::LoadInst*>(lhs_value);
+				if (!load_inst)
+				{
+					code_gen_errors.push_back(Error("Expected lvalue for left hand side of assignment operation", line));
+					return nullptr;
+				}
+				builder.CreateStore(rhs_value, load_inst->getPointerOperand());
+				return rhs_value;
+			}
+		}
+		case TokenType::dot:
+		{
+			llvm::LoadInst* load_inst = static_cast<llvm::LoadInst*>(lhs_value);
 			if (!load_inst)
 			{
 				code_gen_errors.push_back(Error("Expected lvalue for left hand side of assignment operation", line));
 				return nullptr;
 			}
-			builder.CreateStore(rhs_value, load_inst->getPointerOperand());
-			return rhs_value;
+
+			auto load_inst_type = load_inst->getType();
+			auto iter_c = std::find_if(classes.begin(), classes.end(),
+									   [&load_inst_type](const std::pair<std::string, std::shared_ptr<ClassType>>& a)
+			{
+				return a.second->type == load_inst_type;
+			});
+			if (iter_c != classes.end())
+			{
+				auto iter_f =
+					std::find_if(iter_c->second->fields.begin(), iter_c->second->fields.end(),
+								 [&](const FieldDeclaration& f) {
+					return true;
+				});
+
+				if (iter_f == iter_c->second->fields.end())
+				{
+					code_gen_errors.push_back(Error("Expected inaccessible field or method.", line));
+					return nullptr;
+				}
+				std::string val = std::to_string([&] {
+					return (int)std::distance(iter_c->second->fields.begin(),
+											  iter_f);
+				}());
+				std::string temp_id = "member." + (std::dynamic_pointer_cast<Identifier>(lhs))->id.data +
+					'.' + (std::dynamic_pointer_cast<Identifier>(rhs))->id.data;
+				llvm::Value* ptr_val = load_inst->getPointerOperand();
+				llvm::GetElementPtrInst* ptr = llvm::GetElementPtrInst::Create(
+					load_inst_type, ptr_val, {
+						constant_int32_0,
+						llvm::ConstantInt::get(module->getContext(),
+						llvm::APInt(32, llvm::StringRef(val), 10))
+					}, temp_id);
+
+				sym_map[temp_id] = ptr;
+
+				return ptr;
+			}
+			else
+			{
+				code_gen_errors.push_back(Error("Expected the identifier to the left of dot must be an instance of the class.", line));
+				return nullptr;
+			}
 		}
 		case TokenType::bit_or:
 			return builder.CreateOr(lhs_value, rhs_value);
@@ -343,31 +404,6 @@ namespace Dlink
 		}
 
 		return builder.CreateCall(function, args_value);
-	}
-
-	llvm::Value* MemberAccess::code_gen()
-	{
-		std::shared_ptr<ClassType> cls_t =
-			std::dynamic_pointer_cast<ClassType>(lhs->type);
-
-		llvm::GetElementPtrInst* ptr = llvm::GetElementPtrInst::Create(
-			lhs->type->get_type(), lhs->value(), {
-				constant_int32_0,
-				llvm::ConstantInt::get(module->getContext(),
-				llvm::APInt(32, llvm::StringRef(std::to_string([&] {
-						int i = 0;
-						for (auto v = cls_t->fields.begin();
-							 v < cls_t->fields.end(); ++v, ++i)
-						{
-							if (v->id.id.data == id.id.data)
-							{
-								return i;
-							}
-						}
-					}())), 10))
-			});
-
-		return ptr;
 	}
 }
 

@@ -139,22 +139,6 @@ namespace Dlink
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
 	};
-
-	struct VariableDeclaration;
-
-	struct MemberAccess : public Expression
-	{
-		const Identifier id;
-		const std::shared_ptr<VariableDeclaration> lhs;
-		const std::shared_ptr<Expression> rhs;
-
-		MemberAccess(const Identifier& _id, const std::shared_ptr<VariableDeclaration>& _lhs,
-					 const std::shared_ptr<Expression>& _rhs)
-			: id(_id), lhs(_lhs), rhs(_rhs)
-		{}
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
-		llvm::Value* code_gen() override;
-	};
 }
 
 //Statement nodes

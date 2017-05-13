@@ -54,17 +54,6 @@ namespace Dlink
 
 		return tree;
 	}
-
-	std::string MemberAccess::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
-	{
-		std::string tree = std::string(depth * 6, ' ') + "Member Access\n";
-		tree += "Left : \n";
-		tree += lhs->tree_gen(depth + 1, tokentype_map) + '\n';
-		tree += "Right : \n";
-		tree += rhs->tree_gen(depth + 1, tokentype_map);
-
-		return tree;
-	}
 }
 
 //Statement nodes
