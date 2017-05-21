@@ -40,13 +40,14 @@ namespace Dlink
 	{
 		llvm::Value* last_value = nullptr;
 
-		std::map<std::string, llvm::Value*> temp_map = sym_map;
+		auto temp_map = sym_map;
+		auto temp_map_access = sym_accessmap;
 		for (auto statement : statements)
 		{
 			last_value = statement->code_gen();
 		}
 		sym_map = temp_map;
-		sym_accessmap.clear();
+		sym_accessmap = temp_map_access;
 		return last_value;
 	}
 
@@ -115,6 +116,7 @@ namespace Dlink
 
 		builder.SetInsertPoint(function_block);
 		sym_map.clear();
+		sym_accessmap.clear();
 
 		for (auto& argument : function->args())
 		{
@@ -127,6 +129,8 @@ namespace Dlink
 		{
 			if (builder.getCurrentFunctionReturnType() != builder.getVoidTy())
 				builder.CreateRet(llvm::Constant::getNullValue(builder.getCurrentFunctionReturnType()));
+			else
+				builder.CreateRetVoid();
 		}
 
 		func_pm->run(*function);
@@ -239,7 +243,25 @@ namespace Dlink
 
 	llvm::Value* String::code_gen()
 	{
-		return builder.CreateGlobalStringPtr(data.c_str());
+		std::size_t start_pos = 0;
+
+		static std::map<std::string, std::string> escape =
+		{
+			{ R"(\n)", "\n" },
+			{ R"(\r)", "\r" },
+		};
+
+		std::string fix = data;
+		for (const auto e : escape)
+		{
+			while ((start_pos = data.find(e.first, start_pos)) != std::string::npos)
+			{
+				fix.replace(start_pos, e.first.length(), e.second);
+				start_pos += e.second.length();
+			}
+		}
+
+		return builder.CreateGlobalStringPtr(fix.c_str());
 	}
 
 	llvm::Value* Identifier::code_gen()
