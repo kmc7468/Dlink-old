@@ -41,12 +41,14 @@ namespace Dlink
 		llvm::Value* last_value = nullptr;
 
 		auto temp_map = sym_map;
+		auto temp_map_type = sym_typemap;
 		auto temp_map_access = sym_accessmap;
 		for (auto statement : statements)
 		{
 			last_value = statement->code_gen();
 		}
 		sym_map = temp_map;
+		sym_typemap = temp_map_type;
 		sym_accessmap = temp_map_access;
 		return last_value;
 	}
@@ -118,7 +120,9 @@ namespace Dlink
 		sym_map.clear();
 		sym_accessmap.clear();
 
-		for (auto& argument : function->args())
+		auto args = function->args();
+
+		for (auto& argument : args)
 		{
 			llvm::AllocaInst* alloca_inst = builder.CreateAlloca(argument.getType(), &argument);
 			sym_map[argument.getName()] = alloca_inst;
@@ -128,9 +132,13 @@ namespace Dlink
 		if (!ret_inst)
 		{
 			if (builder.getCurrentFunctionReturnType() != builder.getVoidTy())
+			{
 				builder.CreateRet(llvm::Constant::getNullValue(builder.getCurrentFunctionReturnType()));
+			}
 			else
+			{
 				builder.CreateRetVoid();
+			}
 		}
 
 		func_pm->run(*function);
