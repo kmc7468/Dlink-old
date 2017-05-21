@@ -1374,7 +1374,7 @@ namespace Dlink
 			
 			if (begin + i != end && begin[i].type == TokenType::identifier)
 			{
-				auto member = std::make_shared<Identifier>(begin[i]);
+				auto member = std::make_shared<Identifier>(begin[i], true);
 				
 				i++;
 				

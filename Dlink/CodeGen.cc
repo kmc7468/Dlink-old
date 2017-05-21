@@ -233,7 +233,8 @@ namespace Dlink
 		llvm::Value* value = sym_map[id.data];
 		if (!value)
 		{
-			code_gen_errors.push_back(Error("Undefined symbol \"" + id.data + "\"", line));
+			if (!is_member)
+				code_gen_errors.push_back(Error("Undefined symbol \"" + id.data + "\"", line));
 			return builder.getFalse();
 		}
 
@@ -281,7 +282,6 @@ namespace Dlink
 		{
 			if (dynamic_cast<BinaryOP*>(lhs.get()))
 			{
-				//auto lhs_ptr = ((llvm::GetElementPtrInst*)lhs_value)->getPointerOperand();
 				builder.CreateStore(rhs_value, lhs_value);
 				return rhs_value;
 			}
@@ -314,10 +314,12 @@ namespace Dlink
 			});
 			if (iter_c != classes.end())
 			{
+				auto rhs_name = std::dynamic_pointer_cast<Identifier>(rhs)->id.data;
+
 				auto iter_f =
 					std::find_if(iter_c->second->fields.begin(), iter_c->second->fields.end(),
 								 [&](const FieldDeclaration& f) {
-					return true;
+					return f.id.id.data == rhs_name;
 				});
 
 				if (iter_f == iter_c->second->fields.end())
@@ -332,12 +334,14 @@ namespace Dlink
 				std::string temp_id = "member." + (std::dynamic_pointer_cast<Identifier>(lhs))->id.data +
 					'.' + (std::dynamic_pointer_cast<Identifier>(rhs))->id.data;
 				llvm::Value* ptr_val = load_inst->getPointerOperand();
-				llvm::GetElementPtrInst* ptr = llvm::GetElementPtrInst::Create(
-					load_inst_type, ptr_val, {
-						constant_int32_0,
-						llvm::ConstantInt::get(module->getContext(),
-						llvm::APInt(32, llvm::StringRef(val), 10))
-					}, temp_id);
+				auto constant_int = llvm::ConstantInt::get(module->getContext(),
+												   llvm::APInt(32, llvm::StringRef(val), 10));
+
+				llvm::GetElementPtrInst* ptr = 
+					(llvm::GetElementPtrInst*)builder.CreateGEP(load_inst_type, ptr_val, {
+					constant_int32_0,
+					constant_int
+				}, temp_id);
 
 				sym_map[temp_id] = ptr;
 

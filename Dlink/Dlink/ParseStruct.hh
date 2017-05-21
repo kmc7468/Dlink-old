@@ -99,8 +99,11 @@ namespace Dlink
 	struct Identifier : public Expression
 	{
 		const Token id;
+		const bool is_member = false;
 
 		Identifier(const Token& _id) : id(_id)
+		{}
+		Identifier(const Token& _id, bool _is_member) : id(_id), is_member(_is_member)
 		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Value* code_gen() override;
