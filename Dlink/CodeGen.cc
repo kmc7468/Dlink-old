@@ -46,6 +46,7 @@ namespace Dlink
 			last_value = statement->code_gen();
 		}
 		sym_map = temp_map;
+		sym_accessmap.clear();
 		return last_value;
 	}
 
