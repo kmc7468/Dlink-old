@@ -23,6 +23,7 @@ namespace Dlink
 	extern std::unique_ptr<llvm::legacy::FunctionPassManager> func_pm;
 	extern std::map<std::string, llvm::Value*> sym_map;
 	extern std::map<std::string, std::shared_ptr<Type>> sym_typemap;
+	extern std::map<std::string, llvm::GetElementPtrInst*> sym_accessmap;
 	extern std::map<std::string, std::shared_ptr<ClassType>> classes;
 	extern ErrorList code_gen_errors;
 

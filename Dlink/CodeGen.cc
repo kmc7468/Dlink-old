@@ -12,6 +12,7 @@ namespace Dlink
 	std::unique_ptr<llvm::legacy::FunctionPassManager> func_pm;
 	std::map<std::string, llvm::Value*> sym_map;
 	std::map<std::string, std::shared_ptr<Type>> sym_typemap;
+	std::map<std::string, llvm::GetElementPtrInst*> sym_accessmap;
 	std::map<std::string, std::shared_ptr<ClassType>> classes;
 
 	ErrorList code_gen_errors;
@@ -241,7 +242,7 @@ namespace Dlink
 
 	llvm::Value* Identifier::code_gen()
 	{
-		if (!is_member)
+		if (is_member)
 			return builder.getFalse();
 
 		llvm::Value* value = sym_map[id.data];
@@ -302,7 +303,6 @@ namespace Dlink
 		{
 			if (dynamic_cast<BinaryOP*>(lhs.get()))
 			{
-				//auto lhs_ptr = ((llvm::GetElementPtrInst*)lhs_value)->getPointerOperand();
 				builder.CreateStore(rhs_value, lhs_value);
 				return rhs_value;
 			}
@@ -358,13 +358,21 @@ namespace Dlink
 				auto constant_int = llvm::ConstantInt::get(module->getContext(),
 														   llvm::APInt(32, llvm::StringRef(val), 10));
 
-				llvm::GetElementPtrInst* ptr =
-					(llvm::GetElementPtrInst*)builder.CreateGEP(load_inst_type, ptr_val, {
+				llvm::GetElementPtrInst* ptr = nullptr;
+
+				if (sym_accessmap.find(temp_id) == sym_accessmap.end())
+				{
+					ptr = (llvm::GetElementPtrInst*)builder.CreateGEP(load_inst_type, ptr_val, {
 					constant_int32_0,
 					constant_int
 					}, temp_id);
 
-				sym_map[temp_id] = ptr;
+					sym_accessmap[temp_id] = ptr;
+				}
+				else
+				{
+					ptr = sym_accessmap[temp_id];
+				}
 
 				return ptr;
 			}
