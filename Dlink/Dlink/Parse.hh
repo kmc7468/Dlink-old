@@ -52,5 +52,6 @@ namespace Dlink
 namespace Dlink
 {	
 	int P_type(TokenIter begin, TokenIter end, std::shared_ptr<Type>& out, ErrorList& e_list);
+	int P_const_type(TokenIter begin, TokenIter end, std::shared_ptr<Type>& out, ErrorList& e_list);
 	int P_type_identifier(TokenIter begin, TokenIter end, std::shared_ptr<Type>& out, ErrorList& e_list);
 }

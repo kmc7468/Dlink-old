@@ -11,6 +11,7 @@ namespace Dlink
 	llvm::IRBuilder<> builder(context);
 	std::unique_ptr<llvm::legacy::FunctionPassManager> func_pm;
 	std::map<std::string, llvm::Value*> sym_map;
+	std::map<std::string, std::shared_ptr<Type>> sym_typemap;
 	std::map<std::string, std::shared_ptr<ClassType>> classes;
 
 	ErrorList code_gen_errors;
@@ -54,26 +55,36 @@ namespace Dlink
 
 	llvm::Value* VariableDeclaration::code_gen()
 	{
-		llvm::AllocaInst* alloca = builder.CreateAlloca(type->get_type(), nullptr, id.id.data);
-		alloca->setAlignment(4);
-
-		if (expression != nullptr)
+		if(type->is_const)
 		{
-			llvm::Value* init_expression = expression->code_gen();
-			builder.CreateStore(init_expression, alloca);
-		}
+			if (expression == nullptr)
+			{
+				code_gen_errors.push_back(Error("Expected initialize value when declaring constant", line));
+				return nullptr;
+			}
 
-//		if(sym_map.find(id.id.data) == sym_map.end())
-//		{
-		sym_map[id.id.data] = alloca;
-		value_ = alloca;
-		return alloca;
-//		}
-//		else
-//		{
-//			code_gen_errors.push_back(Error("Redefinition of variable '" + id.id.data + "'", line));
-//			return nullptr;
-//		}
+			llvm::Value* init_expression = expression->code_gen();
+			sym_map[id.id.data] = init_expression;
+			sym_typemap[id.id.data] = type;
+
+			return init_expression;
+		}
+		else
+		{
+			llvm::AllocaInst* alloca = builder.CreateAlloca(type->get_type(), nullptr, id.id.data);
+			alloca->setAlignment(4);
+
+			if (expression != nullptr)
+			{
+				llvm::Value* init_expression = expression->code_gen();
+				builder.CreateStore(init_expression, alloca);
+			}
+
+			sym_map[id.id.data] = alloca;
+			sym_typemap[id.id.data] = type;
+			value_ = alloca;
+			return alloca;
+		}
 	}
 
 #ifdef DLINK_MACRO_ALLOCA_PUSH
@@ -237,8 +248,15 @@ namespace Dlink
 				code_gen_errors.push_back(Error("Undefined symbol \"" + id.data + "\"", line));
 			return builder.getFalse();
 		}
-
-		return builder.CreateLoad(value);
+		
+		if (sym_typemap[id.data]->is_const)
+		{
+			return value;
+		}
+		else
+		{
+			return builder.CreateLoad(value);
+		}
 	}
 
 	llvm::Value* UnaryOP::code_gen()
@@ -282,6 +300,7 @@ namespace Dlink
 		{
 			if (dynamic_cast<BinaryOP*>(lhs.get()))
 			{
+				//auto lhs_ptr = ((llvm::GetElementPtrInst*)lhs_value)->getPointerOperand();
 				builder.CreateStore(rhs_value, lhs_value);
 				return rhs_value;
 			}
@@ -425,5 +444,10 @@ namespace Dlink
 		else if (id.id.data == "float") return builder.getFloatTy();
 		else if (id.id.data == "double") return builder.getDoubleTy();
 		else return builder.getVoidTy();
+	}
+
+	llvm::Type* ConstType::get_type()
+	{
+		return type->get_type();
 	}
 }

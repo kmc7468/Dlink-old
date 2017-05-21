@@ -275,5 +275,8 @@ tags
 # LLVM IR file
 *.ll
 
+# vscode
+.vscode/
+
 # Etc
 /Dlink/test.txt

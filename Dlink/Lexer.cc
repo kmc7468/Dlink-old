@@ -20,6 +20,7 @@ namespace Dlink
 		keyword_map_["public"] = TokenType::_public;
 		keyword_map_["protected"] = TokenType::_protected;
 		keyword_map_["private"] = TokenType::_private;
+		keyword_map_["const"] = TokenType::_const;
 	}
 
 	void Lexer::lex(const std::string& str)

@@ -84,5 +84,6 @@ namespace Dlink
 		MAP_TOKEN(_public),
 		MAP_TOKEN(_protected),
 		MAP_TOKEN(_private),
+		MAP_TOKEN(_const)
 	};
 }

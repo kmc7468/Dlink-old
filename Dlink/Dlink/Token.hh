@@ -88,6 +88,8 @@ namespace Dlink
 		_public,
 		_protected,
 		_private,
+
+		_const,
 	};
 
 	struct Token

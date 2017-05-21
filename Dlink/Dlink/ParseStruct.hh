@@ -41,6 +41,8 @@ namespace Dlink
 	{
 		std::size_t line = 0;
 
+		bool is_const = false;
+
 		virtual std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 		{
 			return std::string(depth * 6, ' ') + "<Undefined Tree>";
@@ -294,6 +296,17 @@ namespace Dlink
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Type* get_type() override;
 	};
+
+	struct ConstType : public Type
+	{
+		std::shared_ptr<Type> type;
+
+		ConstType(const std::shared_ptr<Type>& _type) : type(_type)
+		{}
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
+		llvm::Type* get_type() override;
+	};
+
 	struct ClassType : public IdentifierType
 	{
 		const std::vector<FieldDeclaration>& fields;

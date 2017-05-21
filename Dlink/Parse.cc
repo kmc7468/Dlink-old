@@ -201,10 +201,10 @@ namespace Dlink
 
 	int P_var_decl(TokenIter begin, TokenIter end, std::shared_ptr<Statement>& out, ErrorList& e_list)
 	{
-		int i = 0, t;
+		int i = 0, t = 0;
 
 		std::shared_ptr<Type> type_expr;
-		if ((t = P_type(begin + i, end, type_expr, e_list)) >= 0)
+		if ((t = P_type(begin + i, end, type_expr, e_list)) > 0)
 		{
 			i += t;
 
@@ -1485,7 +1485,57 @@ namespace Dlink
 {
 	int P_type(TokenIter begin, TokenIter end, std::shared_ptr<Type>& out, ErrorList& e_list)
 	{
-		return P_type_identifier(begin, end, out, e_list);
+		return P_const_type(begin, end, out, e_list);
+	}
+
+	int P_const_type(TokenIter begin, TokenIter end, std::shared_ptr<Type>& out, ErrorList& e_list)
+	{
+		int i = 0, t = 0;
+
+		std::shared_ptr<Type> sub_type;
+
+		if ((t = P_type_identifier(begin + i, end, sub_type, e_list)) > 0)
+		{
+			i += t;
+
+			if(begin + i != end && begin[i].type == TokenType::_const)
+			{
+				i++;
+
+				out = std::make_shared<ConstType>(sub_type);
+				out->is_const = true;
+				out->line = begin[i].line;
+
+				return i;
+			}
+			else
+			{
+				out = sub_type;
+				return i;
+			}
+		}
+		else if(begin[i].type == TokenType::_const)
+		{
+			i++;
+
+			if ((t = P_type_identifier(begin + i, end, sub_type, e_list)) > 0)
+			{
+				i += t;
+
+				out = std::make_shared<ConstType>(sub_type);
+				out->is_const = true;
+				out->line = begin[i].line;
+
+				return i;
+			}
+			else
+			{
+				e_list.push_back(Error("Expected type after 'const'", begin[i-1].line));
+				return -1;
+			}
+		}
+
+		return -1;
 	}
 
 	int P_type_identifier(TokenIter begin, TokenIter end, std::shared_ptr<Type>& out, ErrorList& e_list)
