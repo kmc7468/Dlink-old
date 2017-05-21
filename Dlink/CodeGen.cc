@@ -55,7 +55,7 @@ namespace Dlink
 
 	llvm::Value* VariableDeclaration::code_gen()
 	{
-		if(type->is_const)
+		if (type->is_const)
 		{
 			if (expression == nullptr)
 			{
@@ -241,14 +241,16 @@ namespace Dlink
 
 	llvm::Value* Identifier::code_gen()
 	{
+		if (!is_member)
+			return builder.getFalse();
+
 		llvm::Value* value = sym_map[id.data];
 		if (!value)
 		{
-			if (!is_member)
-				code_gen_errors.push_back(Error("Undefined symbol \"" + id.data + "\"", line));
+			code_gen_errors.push_back(Error("Undefined symbol \"" + id.data + "\"", line));
 			return builder.getFalse();
 		}
-		
+
 		if (sym_typemap[id.data]->is_const)
 		{
 			return value;
@@ -354,13 +356,13 @@ namespace Dlink
 					'.' + (std::dynamic_pointer_cast<Identifier>(rhs))->id.data;
 				llvm::Value* ptr_val = load_inst->getPointerOperand();
 				auto constant_int = llvm::ConstantInt::get(module->getContext(),
-												   llvm::APInt(32, llvm::StringRef(val), 10));
+														   llvm::APInt(32, llvm::StringRef(val), 10));
 
-				llvm::GetElementPtrInst* ptr = 
+				llvm::GetElementPtrInst* ptr =
 					(llvm::GetElementPtrInst*)builder.CreateGEP(load_inst_type, ptr_val, {
 					constant_int32_0,
 					constant_int
-				}, temp_id);
+					}, temp_id);
 
 				sym_map[temp_id] = ptr;
 
