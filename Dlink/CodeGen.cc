@@ -125,7 +125,8 @@ namespace Dlink
 		llvm::ReturnInst* ret_inst = llvm::dyn_cast<llvm::ReturnInst>(body->code_gen());
 		if (!ret_inst)
 		{
-			builder.CreateRet(llvm::Constant::getNullValue(builder.getCurrentFunctionReturnType()));
+			if (builder.getCurrentFunctionReturnType() != builder.getVoidTy())
+				builder.CreateRet(llvm::Constant::getNullValue(builder.getCurrentFunctionReturnType()));
 		}
 
 		func_pm->run(*function);
