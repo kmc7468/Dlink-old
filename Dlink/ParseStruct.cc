@@ -238,6 +238,13 @@ namespace Dlink
 		tree += type->tree_gen(depth + 1, tokentype_map);
 		return tree;
 	}
+	
+	std::string PointerType::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
+	{
+		std::string tree = std::string(depth * 6, ' ') + "PointerType : \n";
+		tree += type->tree_gen(depth + 1, tokentype_map);
+		return tree;
+	}
 
 	std::string ClassType::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{

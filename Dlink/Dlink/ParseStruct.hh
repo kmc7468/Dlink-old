@@ -306,6 +306,16 @@ namespace Dlink
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Type* get_type() override;
 	};
+	
+	struct PointerType : public Type
+	{
+		std::shared_ptr<Type> type;
+
+		PointerType(const std::shared_ptr<Type>& _type) : type(_type)
+		{}
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
+		llvm::Type* get_type() override;
+	};
 
 	struct ClassType : public IdentifierType
 	{

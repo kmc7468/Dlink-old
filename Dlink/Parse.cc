@@ -1485,9 +1485,37 @@ namespace Dlink
 {
 	int P_type(TokenIter begin, TokenIter end, std::shared_ptr<Type>& out, ErrorList& e_list)
 	{
-		return P_const_type(begin, end, out, e_list);
+		return P_single_ptr_type(begin, end, out, e_list);
 	}
 
+	int P_single_ptr_type(TokenIter begin, TokenIter end, std::shared_ptr<Type>& out, ErrorList& e_list)
+	{
+		int i = 0, t = 0;
+
+		std::shared_ptr<Type> sub_type;
+
+		if ((t = P_const_type(begin + i, end, sub_type, e_list)) > 0)
+		{
+			i += t;
+
+			if(begin + i != end && begin[i].type == TokenType::multiply)
+			{
+				i++;
+
+				out = std::make_shared<PointerType>(sub_type);
+				out->line = begin[i].line;
+
+				return i;
+			}
+			else
+			{
+				out = sub_type;
+				return i;
+			}
+		}
+		
+		return -1;
+	}
 	int P_const_type(TokenIter begin, TokenIter end, std::shared_ptr<Type>& out, ErrorList& e_list)
 	{
 		int i = 0, t = 0;

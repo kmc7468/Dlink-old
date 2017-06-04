@@ -487,6 +487,12 @@ namespace Dlink
 		else if (id.id.data == "double") return builder.getDoubleTy();
 		else return builder.getVoidTy();
 	}
+	
+	llvm::Type* PointerType::get_type()
+	{
+		llvm::Type* pointee_type = type->get_type();
+		return pointee_type->getPointerTo();
+	}
 
 	llvm::Type* ConstType::get_type()
 	{
