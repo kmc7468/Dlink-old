@@ -1079,7 +1079,7 @@ namespace Dlink
 		int i = 0, t = 0;
 
 		std::shared_ptr<Expression> sub_expr;
-		if ((t = P_not_expr(begin + i, end, sub_expr, e_list)) >= 0)
+		if ((t = P_ref_deref_expr(begin + i, end, sub_expr, e_list)) >= 0)
 		{
 			i = t;
 		}
@@ -1095,7 +1095,7 @@ namespace Dlink
 		{
 			i++;
 			std::shared_ptr<Expression> sub_expr2;
-			if ((t = P_not_expr(begin + i, end, sub_expr2, e_list)) >= 0)
+			if ((t = P_ref_deref_expr(begin + i, end, sub_expr2, e_list)) >= 0)
 			{
 				i += t;
 				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
@@ -1112,6 +1112,59 @@ namespace Dlink
 		return i;
 	}
 
+	int P_ref_deref_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list)
+	{
+		if (begin == end)
+		{
+			return -1;
+		}
+
+		int i = 0, t;
+		std::shared_ptr<Expression> ret;
+		std::shared_ptr<Expression> sub_expr;
+
+		if (begin[i].type == TokenType::bit_and || begin[i].type == TokenType::multiply)
+		{
+			i++;
+			if ((t = P_not_expr(begin + i, end, sub_expr, e_list)) > 0) //bookmark
+			{
+				i += t;
+			}
+			else
+			{
+				if (begin[i - 1].type == TokenType::bit_and)
+				{
+					e_list.push_back(Error("Expected expression after '&'", begin[i - 1].line));
+				}
+				else
+				{
+					e_list.push_back(Error("Expected expression after '*'", begin[i - 1].line));
+				}
+
+				return -1;
+			}
+
+			Token op = begin[i - t - 1];
+			if (op.type == TokenType::bit_and) op.type = TokenType::bit_and;
+			else op.type = TokenType::multiply;
+			ret = std::make_shared<UnaryOP>(op, sub_expr);
+			ret->line = begin[i - t].line;
+		}
+		else
+		{
+			if ((t = P_not_expr(begin + i, end, ret, e_list)) >= 0)
+			{
+				i += t;
+			}
+			else
+			{
+				return -1;
+			}
+		}
+		out = ret;
+		return i;
+	}
+	
 	int P_not_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list)
 	{
 		if (begin == end)

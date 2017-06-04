@@ -39,6 +39,7 @@ namespace Dlink
 	int P_bit_lrshift_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 	int P_addsub_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 	int P_muldiv_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
+	int P_ref_deref_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 	int P_not_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 	int P_sign_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);
 	int P_func_call_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList& e_list);

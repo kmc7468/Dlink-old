@@ -1,5 +1,11 @@
+void inc(int* n)
+{
+	(*n)++;
+}
+
 int main()
 {	
-	int* a = 10;	
-	return a;
+	int b = 10;
+	inc(&b);
+	return b;
 }
