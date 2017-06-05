@@ -83,6 +83,7 @@ namespace Dlink
 		_auto,
 		gpu,
 		cpu,
+		null,
 
 		_class,
 		_public,

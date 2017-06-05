@@ -65,8 +65,24 @@ namespace Dlink
 
 		if (expression != nullptr)
 		{
-			llvm::Value* init_expression = expression->code_gen();
-			builder.CreateStore(init_expression, alloca);
+			if (dynamic_cast<Const_Null*>(expression.get()))
+			{
+				if (!type->get_type()->isPointerTy())
+				{
+					code_gen_errors.push_back(
+						Error("Null can only be used for pointers or references.", line)
+					);
+					return nullptr;
+				}
+
+				builder.CreateStore(llvm::ConstantPointerNull::get(
+				reinterpret_cast<llvm::PointerType*>(type->get_type())), alloca);
+			}
+			else
+			{
+				llvm::Value* init_expression = expression->code_gen();
+				builder.CreateStore(init_expression, alloca);
+			}
 		}
 
 		sym_map[id.id.data] = alloca;
@@ -115,7 +131,7 @@ namespace Dlink
 
 		llvm::Value* body_gen = body->code_gen();
 		llvm::ReturnInst* ret_inst;
-		if(body_gen)
+		if (body_gen)
 		{
 			ret_inst = llvm::dyn_cast<llvm::ReturnInst>(body_gen);
 		}
@@ -278,6 +294,11 @@ namespace Dlink
 		return builder.CreateLoad(value);
 	}
 
+	llvm::Value* Const_Null::code_gen()
+	{
+		return nullptr;
+	}
+
 	llvm::Value* UnaryOP::code_gen()
 	{
 		llvm::Value* rhs_value = rhs->code_gen();
@@ -291,68 +312,68 @@ namespace Dlink
 		case TokenType::minus:
 			return builder.CreateSub(builder.getInt32(0), rhs_value);
 		case TokenType::bit_and:
+		{
+			llvm::LoadInst* load_inst;
+			if ((load_inst = dynamic_cast<llvm::LoadInst*>(rhs_value)))
 			{
-				llvm::LoadInst* load_inst;
-				if((load_inst = dynamic_cast<llvm::LoadInst*>(rhs_value)))
-				{
-					return load_inst->getPointerOperand();	
-				}
-				else
-				{
-					code_gen_errors.push_back(Error("Expected lvalue", line));
-					return builder.getFalse();
-				}
+				return load_inst->getPointerOperand();
 			}
+			else
+			{
+				code_gen_errors.push_back(Error("Expected lvalue", line));
+				return builder.getFalse();
+			}
+		}
 		case TokenType::multiply:
 			return builder.CreateLoad(rhs_value);
 		case TokenType::pre_inc:
+		{
+			llvm::LoadInst* load_inst = dynamic_cast<llvm::LoadInst*>(rhs_value);
+			if (!load_inst)
 			{
-				llvm::LoadInst* load_inst = dynamic_cast<llvm::LoadInst*>(rhs_value);
-				if (!load_inst)
-				{
-					code_gen_errors.push_back(Error("Expected lvalue for left hand side of assignment operation", line));
-					return nullptr;
-				}
-
-				builder.CreateStore(builder.CreateAdd(rhs_value, builder.getInt32(1)), load_inst->getPointerOperand());
-				return rhs_value;
+				code_gen_errors.push_back(Error("Expected lvalue for left hand side of assignment operation", line));
+				return nullptr;
 			}
+
+			builder.CreateStore(builder.CreateAdd(rhs_value, builder.getInt32(1)), load_inst->getPointerOperand());
+			return rhs_value;
+		}
 		case TokenType::post_inc:
+		{
+			llvm::LoadInst* load_inst = dynamic_cast<llvm::LoadInst*>(rhs_value);
+			if (!load_inst)
 			{
-				llvm::LoadInst* load_inst = dynamic_cast<llvm::LoadInst*>(rhs_value);
-				if (!load_inst)
-				{
-					code_gen_errors.push_back(Error("Expected lvalue for left hand side of assignment operation", line));
-					return nullptr;
-				}
-
-				builder.CreateStore(builder.CreateAdd(rhs_value, builder.getInt32(1)), load_inst->getPointerOperand());
-				return builder.CreateSub(rhs_value, builder.getInt32(1));
+				code_gen_errors.push_back(Error("Expected lvalue for left hand side of assignment operation", line));
+				return nullptr;
 			}
+
+			builder.CreateStore(builder.CreateAdd(rhs_value, builder.getInt32(1)), load_inst->getPointerOperand());
+			return builder.CreateSub(rhs_value, builder.getInt32(1));
+		}
 		case TokenType::pre_dec:
+		{
+			llvm::LoadInst* load_inst = dynamic_cast<llvm::LoadInst*>(rhs_value);
+			if (!load_inst)
 			{
-				llvm::LoadInst* load_inst = dynamic_cast<llvm::LoadInst*>(rhs_value);
-				if (!load_inst)
-				{
-					code_gen_errors.push_back(Error("Expected lvalue for left hand side of assignment operation", line));
-					return nullptr;
-				}
-
-				builder.CreateStore(builder.CreateSub(rhs_value, builder.getInt32(1)), load_inst->getPointerOperand());
-				return rhs_value;
+				code_gen_errors.push_back(Error("Expected lvalue for left hand side of assignment operation", line));
+				return nullptr;
 			}
+
+			builder.CreateStore(builder.CreateSub(rhs_value, builder.getInt32(1)), load_inst->getPointerOperand());
+			return rhs_value;
+		}
 		case TokenType::post_dec:
+		{
+			llvm::LoadInst* load_inst = dynamic_cast<llvm::LoadInst*>(rhs_value);
+			if (!load_inst)
 			{
-				llvm::LoadInst* load_inst = dynamic_cast<llvm::LoadInst*>(rhs_value);
-				if (!load_inst)
-				{
-					code_gen_errors.push_back(Error("Expected lvalue for left hand side of assignment operation", line));
-					return nullptr;
-				}
-
-				builder.CreateStore(builder.CreateSub(rhs_value, builder.getInt32(1)), load_inst->getPointerOperand());
-				return builder.CreateAdd(rhs_value, builder.getInt32(1));
+				code_gen_errors.push_back(Error("Expected lvalue for left hand side of assignment operation", line));
+				return nullptr;
 			}
+
+			builder.CreateStore(builder.CreateSub(rhs_value, builder.getInt32(1)), load_inst->getPointerOperand());
+			return builder.CreateAdd(rhs_value, builder.getInt32(1));
+		}
 		default:
 			code_gen_errors.push_back(Error("Undefined unary operator", line));
 			return builder.getFalse();
@@ -522,7 +543,7 @@ namespace Dlink
 		else if (id.id.data == "double") return builder.getDoubleTy();
 		else return builder.getVoidTy();
 	}
-	
+
 	llvm::Type* PointerType::get_type()
 	{
 		llvm::Type* pointee_type = type->get_type();

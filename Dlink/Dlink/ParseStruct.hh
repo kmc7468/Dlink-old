@@ -113,6 +113,12 @@ namespace Dlink
 		llvm::Value* code_gen() override;
 	};
 
+	struct Const_Null : public Expression
+	{
+		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
+		llvm::Value* code_gen() override;
+	};
+
 	struct UnaryOP : public Expression
 	{
 		const Token op;

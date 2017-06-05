@@ -665,7 +665,7 @@ namespace Dlink
 		int i = 0, t = 0;
 
 		std::shared_ptr<Expression> sub_expr;
-		if ((t = P_logical_or_expr(begin + i, end, sub_expr, e_list)) >= 0)
+		if ((t = P_null_expr(begin + i, end, sub_expr, e_list)) >= 0)
 		{
 			i = t;
 		}
@@ -679,10 +679,50 @@ namespace Dlink
 		{
 			i++;
 			std::shared_ptr<Expression> sub_expr2;
-			if ((t = P_logical_or_expr(begin + i, end, sub_expr2, e_list)) >= 0)
+			if ((t = P_null_expr(begin + i, end, sub_expr2, e_list)) >= 0)
 			{
 				i += t;
 				sub_expr = std::make_shared<BinaryOP>(sub_expr, begin[i - t - 1], sub_expr2);
+				sub_expr->line = begin[i - t].line;
+			}
+			else
+			{
+				i--;
+				break;
+			}
+		}
+
+		out = sub_expr;
+		return i;
+	}
+
+	int P_null_expr(TokenIter begin, TokenIter end, std::shared_ptr<Expression>& out, ErrorList & e_list)
+	{
+		if (begin == end)
+		{
+			return -1;
+		}
+
+		int i = 0, t = 0;
+
+		std::shared_ptr<Expression> sub_expr;
+		if ((t = P_logical_or_expr(begin + i, end, sub_expr, e_list)) >= 0)
+		{
+			i = t;
+		}
+		else
+		{
+			return -1;
+		}
+
+		while (begin + i != end && (begin[i].type == TokenType::null))
+		{
+			i++;
+			std::shared_ptr<Expression> sub_expr2;
+			if ((t = P_logical_or_expr(begin + i, end, sub_expr2, e_list)) >= 0)
+			{
+				i += t;
+				sub_expr = std::make_shared<Const_Null>();
 				sub_expr->line = begin[i - t].line;
 			}
 			else
@@ -714,7 +754,6 @@ namespace Dlink
 		{
 			return -1;
 		}
-
 
 		while (begin + i != end && (begin[i].type == TokenType::logic_or))
 		{

@@ -80,6 +80,7 @@ namespace Dlink
 		MAP_TOKEN(_auto),
 		MAP_TOKEN(gpu),
 		MAP_TOKEN(cpu),
+		MAP_TOKEN(null),
 		MAP_TOKEN(_class),
 		MAP_TOKEN(_public),
 		MAP_TOKEN(_protected),

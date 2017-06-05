@@ -23,6 +23,10 @@ namespace Dlink
 	{
 		return std::string(depth * 6, ' ') + "Identifier : " + id.data;
 	}
+	std::string Const_Null::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
+	{
+		return std::string(depth * 6, ' ') + "Constant: null";
+	}
 	std::string UnaryOP::tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const
 	{
 		std::string tree = std::string(depth * 6, ' ') + "UnaryOP(" + tokentype_map[op.type] + ")\n";
