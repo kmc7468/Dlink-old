@@ -60,36 +60,19 @@ namespace Dlink
 
 	llvm::Value* VariableDeclaration::code_gen()
 	{
-		if (type->is_const)
-		{
-			if (expression == nullptr)
-			{
-				code_gen_errors.push_back(Error("Expected initialize value when declaring constant", line));
-				return nullptr;
-			}
+		llvm::AllocaInst* alloca = builder.CreateAlloca(type->get_type(), nullptr, id.id.data);
+		alloca->setAlignment(4);
 
+		if (expression != nullptr)
+		{
 			llvm::Value* init_expression = expression->code_gen();
-			sym_map[id.id.data] = init_expression;
-			sym_typemap[id.id.data] = type;
-
-			return init_expression;
+			builder.CreateStore(init_expression, alloca);
 		}
-		else
-		{
-			llvm::AllocaInst* alloca = builder.CreateAlloca(type->get_type(), nullptr, id.id.data);
-			alloca->setAlignment(4);
 
-			if (expression != nullptr)
-			{
-				llvm::Value* init_expression = expression->code_gen();
-				builder.CreateStore(init_expression, alloca);
-			}
-
-			sym_map[id.id.data] = alloca;
-			sym_typemap[id.id.data] = type;
-			value_ = alloca;
-			return alloca;
-		}
+		sym_map[id.id.data] = alloca;
+		sym_typemap[id.id.data] = type;
+		value_ = alloca;
+		return alloca;
 	}
 
 #ifdef DLINK_MACRO_ALLOCA_PUSH
@@ -292,15 +275,7 @@ namespace Dlink
 			return builder.getFalse();
 		}
 
-		if (sym_typemap[id.data]->is_const)
-		{
-			return value;
-		}
-		else
-		{
-			std::cout << "kwhat\n";
-			return builder.CreateLoad(value);
-		}
+		return builder.CreateLoad(value);
 	}
 
 	llvm::Value* UnaryOP::code_gen()
@@ -552,10 +527,5 @@ namespace Dlink
 	{
 		llvm::Type* pointee_type = type->get_type();
 		return pointee_type->getPointerTo();
-	}
-
-	llvm::Type* ConstType::get_type()
-	{
-		return type->get_type();
 	}
 }

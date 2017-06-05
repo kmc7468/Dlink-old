@@ -35,7 +35,9 @@ namespace Dlink
 	struct Statement : public Node
 	{};
 	struct Expression : public Node
-	{};
+	{
+		bool is_modifiable = false;
+	};
 
 	struct Type
 	{
@@ -293,16 +295,6 @@ namespace Dlink
 		IdentifierType(const Identifier& _id) : id(_id)
 		{}
 
-		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
-		llvm::Type* get_type() override;
-	};
-
-	struct ConstType : public Type
-	{
-		std::shared_ptr<Type> type;
-
-		ConstType(const std::shared_ptr<Type>& _type) : type(_type)
-		{}
 		std::string tree_gen(std::size_t depth, std::map<TokenType, std::string> tokentype_map) const override;
 		llvm::Type* get_type() override;
 	};

@@ -1,11 +1,12 @@
-void inc(int* n)
+void inc(int* ptr)
 {
-	(*n)++;
+	(*ptr)++;
 }
 
 int main()
 {	
-	int b = 10;
-	inc(&b);
-	return b;
+	int n = 10;
+	int* ptr = &n;
+	inc(ptr);
+	return n;
 }
